@@ -833,7 +833,7 @@ async function boot(){
     const migrated = await migrateFromOldDB();
     if (migrated && migrated.length > 0) {
       for (const n of migrated) { nodes.push(n); await DB.put(n); }
-      toast('已迁移历史数据 ✓');
+      setTimeout(() => toast('已迁移历史数据 ✓'), 500);
     } else {
       for (const s of SEEDS) {
         const n={...s,clicks:0,visited:false,childrenGenerated:false,content:null,starred:false};
