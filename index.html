@@ -10,7 +10,6 @@
     html,body{height:100%;overflow:hidden}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#05050e;color:#e2e8f0}
 
-    /* ── Starfield ── */
     body::before{
       content:'';position:fixed;inset:0;
       background-image:
@@ -23,11 +22,9 @@
         radial-gradient(1px 1px at 74% 38%,rgba(255,255,255,.45) 0%,transparent 100%),
         radial-gradient(1px 1px at 28% 92%,rgba(255,255,255,.28) 0%,transparent 100%),
         radial-gradient(1px 1px at 52% 8%, rgba(255,255,255,.42) 0%,transparent 100%),
-        radial-gradient(1px 1px at 4%  48%,rgba(255,255,255,.32) 0%,transparent 100%),
-        radial-gradient(1px 1px at 46% 33%,rgba(255,255,255,.25) 0%,transparent 100%),
         radial-gradient(1px 1px at 81% 78%,rgba(255,255,255,.38) 0%,transparent 100%),
-        radial-gradient(circle at 18% 42%,rgba(56,189,248,.035) 0%,transparent 52%),
-        radial-gradient(circle at 82% 62%,rgba(168,85,247,.035) 0%,transparent 52%);
+        radial-gradient(circle at 18% 42%,rgba(56,189,248,.034) 0%,transparent 52%),
+        radial-gradient(circle at 82% 62%,rgba(168,85,247,.034) 0%,transparent 52%);
       pointer-events:none;z-index:0;
     }
 
@@ -36,88 +33,88 @@
       position:fixed;top:0;left:0;right:0;height:52px;
       background:rgba(5,5,14,.92);backdrop-filter:blur(18px);
       border-bottom:1px solid rgba(255,255,255,.055);
-      display:flex;align-items:center;padding:0 14px;gap:10px;z-index:100;
+      display:flex;align-items:center;padding:0 12px;gap:8px;z-index:100;
     }
-    .logo{
-      font-size:15px;font-weight:800;letter-spacing:-.2px;
-      background:linear-gradient(135deg,#38bdf8,#a855f7);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-      white-space:nowrap;flex-shrink:0;
-    }
+    .logo{font-size:15px;font-weight:800;letter-spacing:-.2px;background:linear-gradient(135deg,#38bdf8,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;flex-shrink:0}
     #breadcrumb{flex:1;display:flex;align-items:center;gap:2px;overflow:hidden;font-size:12px;min-width:0}
-    .crumb{color:rgba(255,255,255,.35);cursor:pointer;padding:3px 7px;border-radius:6px;white-space:nowrap;transition:all .15s;flex-shrink:0}
+    .crumb{color:rgba(255,255,255,.35);cursor:pointer;padding:3px 6px;border-radius:6px;white-space:nowrap;transition:all .15s;flex-shrink:0}
     .crumb:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.06)}
     .crumb.active{color:white;cursor:default;flex-shrink:1;overflow:hidden;text-overflow:ellipsis}
-    .crumb-sep{color:rgba(255,255,255,.16);flex-shrink:0;padding:0 1px}
+    .crumb-sep{color:rgba(255,255,255,.15);flex-shrink:0;padding:0 1px}
+
+    /* Search wrapper */
+    #search-wrap{position:relative;flex-shrink:0}
     #search-input{
-      width:150px;flex-shrink:0;
-      background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);
+      width:148px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);
       border-radius:20px;padding:7px 13px;color:#e2e8f0;font-size:13px;outline:none;
-      transition:border-color .2s,width .2s;
+      transition:border-color .2s,width .25s;display:block;
     }
-    #search-input:focus{border-color:rgba(168,85,247,.4);width:190px}
+    #search-input:focus{border-color:rgba(168,85,247,.4);width:185px}
     #search-input::placeholder{color:rgba(255,255,255,.18)}
-    #settings-btn{
+
+    #search-dropdown{
+      position:absolute;top:calc(100% + 6px);left:0;right:0;
+      background:rgba(9,9,24,.97);backdrop-filter:blur(16px);
+      border:1px solid rgba(255,255,255,.1);border-radius:10px;
+      overflow:hidden;z-index:300;display:none;min-width:220px;
+    }
+    #search-dropdown.open{display:block}
+    .sdrop-item{
+      padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;
+      border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s;
+    }
+    .sdrop-item:last-child{border-bottom:none}
+    .sdrop-item:hover{background:rgba(255,255,255,.06)}
+    .sdrop-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .sdrop-label{font-size:13px;font-weight:600;flex:1}
+    .sdrop-path{font-size:11px;color:rgba(255,255,255,.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px}
+    .sdrop-empty{padding:12px 14px;font-size:13px;color:rgba(255,255,255,.28);text-align:center}
+
+    /* Topbar icon buttons */
+    .icon-btn{
       width:32px;height:32px;flex-shrink:0;
       background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);
       border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;
       color:rgba(255,255,255,.38);font-size:14px;transition:all .2s;
     }
-    #settings-btn:hover{color:white;border-color:rgba(255,255,255,.2)}
+    .icon-btn:hover{color:white;border-color:rgba(255,255,255,.2)}
+    .icon-btn.active{color:#fbbf24;border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.08)}
 
     /* ── Arena ── */
     #arena{position:fixed;top:52px;left:0;right:0;bottom:0;z-index:1}
 
     /* ── Bubbles ── */
     .bubble{position:absolute;transform:translate(-50%,-50%);cursor:pointer}
+    /* Inner wrapper for progress ring */
+    .bubble-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
 
     .bubble-body{
       position:relative;border-radius:50%;overflow:hidden;
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       text-align:center;padding:14px;
-      /* Glass: dark interior + specular highlight */
       background:
-        radial-gradient(ellipse 46% 28% at 36% 24%, rgba(255,255,255,.44) 0%, rgba(255,255,255,.1) 50%, transparent 100%),
-        radial-gradient(circle at 50% 50%, rgba(8,8,28,.62) 0%, rgba(5,5,18,.88) 100%);
+        radial-gradient(ellipse 46% 28% at 36% 24%,rgba(255,255,255,.44) 0%,rgba(255,255,255,.1) 50%,transparent 100%),
+        radial-gradient(circle at 50% 50%,rgba(8,8,28,.62) 0%,rgba(5,5,18,.88) 100%);
       border:1.5px solid rgba(255,255,255,.15);
       transition:transform .22s cubic-bezier(.34,1.56,.64,1);
     }
-
-    /* Domain colour rim */
-    .bubble-body::before{
-      content:'';position:absolute;inset:0;border-radius:50%;
-      transition:opacity .3s;
-    }
+    .bubble-body::before{content:'';position:absolute;inset:0;border-radius:50%;transition:opacity .3s}
     .bubble.cv  .bubble-body::before{background:radial-gradient(circle at 50% 50%,transparent 38%,rgba(56,189,248,.22) 100%)}
     .bubble.llm .bubble-body::before{background:radial-gradient(circle at 50% 50%,transparent 38%,rgba(168,85,247,.22) 100%)}
     .bubble.gen .bubble-body::before{background:radial-gradient(circle at 50% 50%,transparent 38%,rgba(249,115,22,.22) 100%)}
+    .bubble-body::after{content:'';position:absolute;bottom:12%;left:50%;transform:translateX(-50%);width:36%;height:7%;border-radius:50%;background:rgba(255,255,255,.1);filter:blur(3px)}
 
-    /* Bottom rim light */
-    .bubble-body::after{
-      content:'';position:absolute;
-      bottom:12%;left:50%;transform:translateX(-50%);
-      width:36%;height:7%;border-radius:50%;
-      background:rgba(255,255,255,.1);filter:blur(3px);
-    }
+    @keyframes glow-cv {0%,100%{box-shadow:0 0 24px rgba(56,189,248,.3), 0 10px 28px rgba(0,0,0,.55),inset 0 1.5px 0 rgba(255,255,255,.22)}50%{box-shadow:0 0 42px rgba(56,189,248,.52),0 10px 28px rgba(0,0,0,.55),inset 0 1.5px 0 rgba(255,255,255,.22)}}
+    @keyframes glow-llm{0%,100%{box-shadow:0 0 24px rgba(168,85,247,.3),0 10px 28px rgba(0,0,0,.55),inset 0 1.5px 0 rgba(255,255,255,.22)}50%{box-shadow:0 0 42px rgba(168,85,247,.52),0 10px 28px rgba(0,0,0,.55),inset 0 1.5px 0 rgba(255,255,255,.22)}}
+    @keyframes glow-gen{0%,100%{box-shadow:0 0 24px rgba(249,115,22,.3), 0 10px 28px rgba(0,0,0,.55),inset 0 1.5px 0 rgba(255,255,255,.22)}50%{box-shadow:0 0 42px rgba(249,115,22,.52), 0 10px 28px rgba(0,0,0,.55),inset 0 1.5px 0 rgba(255,255,255,.22)}}
+    @keyframes glow-stale{0%,100%{box-shadow:0 0 24px rgba(251,191,36,.32),0 10px 28px rgba(0,0,0,.55),inset 0 1.5px 0 rgba(255,255,255,.22)}50%{box-shadow:0 0 42px rgba(251,191,36,.58),0 10px 28px rgba(0,0,0,.55),inset 0 1.5px 0 rgba(255,255,255,.22)}}
 
-    /* Pulsing glow per domain */
-    @keyframes glow-cv {
-      0%,100%{box-shadow:0 0 26px rgba(56,189,248,.3), 0 10px 30px rgba(0,0,0,.55),inset 0 1.5px 0 rgba(255,255,255,.22)}
-      50%    {box-shadow:0 0 44px rgba(56,189,248,.52),0 10px 30px rgba(0,0,0,.55),inset 0 1.5px 0 rgba(255,255,255,.22)}
-    }
-    @keyframes glow-llm{
-      0%,100%{box-shadow:0 0 26px rgba(168,85,247,.3), 0 10px 30px rgba(0,0,0,.55),inset 0 1.5px 0 rgba(255,255,255,.22)}
-      50%    {box-shadow:0 0 44px rgba(168,85,247,.52),0 10px 30px rgba(0,0,0,.55),inset 0 1.5px 0 rgba(255,255,255,.22)}
-    }
-    @keyframes glow-gen{
-      0%,100%{box-shadow:0 0 26px rgba(249,115,22,.3), 0 10px 30px rgba(0,0,0,.55),inset 0 1.5px 0 rgba(255,255,255,.22)}
-      50%    {box-shadow:0 0 44px rgba(249,115,22,.52), 0 10px 30px rgba(0,0,0,.55),inset 0 1.5px 0 rgba(255,255,255,.22)}
-    }
-    .bubble.cv  .bubble-body{animation:glow-cv  3.2s ease-in-out infinite}
-    .bubble.llm .bubble-body{animation:glow-llm 3.2s ease-in-out infinite}
-    .bubble.gen .bubble-body{animation:glow-gen 3.2s ease-in-out infinite}
+    .bubble.cv   .bubble-body{animation:glow-cv   3.2s ease-in-out infinite}
+    .bubble.llm  .bubble-body{animation:glow-llm  3.2s ease-in-out infinite}
+    .bubble.gen  .bubble-body{animation:glow-gen  3.2s ease-in-out infinite}
+    .bubble.stale .bubble-body{animation:glow-stale 2.4s ease-in-out infinite!important}
 
-    .bubble:hover   .bubble-body{transform:scale(1.09)}
+    .bubble:hover    .bubble-body{transform:scale(1.09)}
     .bubble.selected .bubble-body{transform:scale(1.12)}
     .bubble.selected.cv  .bubble-body{animation:none;box-shadow:0 0 52px rgba(56,189,248,.7), 0 12px 32px rgba(0,0,0,.6),inset 0 1.5px 0 rgba(255,255,255,.3)}
     .bubble.selected.llm .bubble-body{animation:none;box-shadow:0 0 52px rgba(168,85,247,.7),0 12px 32px rgba(0,0,0,.6),inset 0 1.5px 0 rgba(255,255,255,.3)}
@@ -126,36 +123,37 @@
     .bubble-label{position:relative;z-index:1;font-size:13px;font-weight:700;color:rgba(255,255,255,.92);line-height:1.3;pointer-events:none}
     .bubble-dot{position:relative;z-index:1;width:5px;height:5px;border-radius:50%;margin-top:7px;background:rgba(255,255,255,.18);transition:background .3s}
     .bubble.visited .bubble-dot{background:rgba(134,239,172,.8);box-shadow:0 0 6px rgba(134,239,172,.5)}
-    .bubble-arrow{position:relative;z-index:1;font-size:9px;color:rgba(255,255,255,.28);margin-top:3px;transition:color .2s;pointer-events:none;letter-spacing:-1px}
+    .bubble.stale   .bubble-dot{background:rgba(251,191,36,.85)!important;box-shadow:0 0 7px rgba(251,191,36,.55)!important}
+    .bubble-arrow{position:relative;z-index:1;font-size:9px;color:rgba(255,255,255,.28);margin-top:3px;pointer-events:none;letter-spacing:-1px;transition:color .2s}
     .bubble:hover .bubble-arrow{color:rgba(255,255,255,.6)}
 
-    /* Float & pop animations */
+    /* Star badge on bubble */
+    .bubble-star{position:absolute;top:4px;right:4px;font-size:10px;z-index:3;pointer-events:none;filter:drop-shadow(0 0 3px rgba(251,191,36,.6))}
+
+    /* Progress ring SVG */
+    .pring{position:absolute;pointer-events:none;z-index:2}
+
     @keyframes f0{0%,100%{margin-top:0}50%{margin-top:-12px}}
     @keyframes f1{0%,100%{margin-top:-4px}50%{margin-top:10px}}
     @keyframes f2{0%,100%{margin-top:8px}50%{margin-top:-10px}}
     @keyframes f3{0%,100%{margin-top:-3px}50%{margin-top:13px}}
     @keyframes f4{0%,100%{margin-top:9px}50%{margin-top:-8px}}
     @keyframes f5{0%,100%{margin-top:-7px}50%{margin-top:9px}}
-    @keyframes popIn{
-      from{opacity:0;transform:translate(-50%,-50%) scale(0.2)}
-      to  {opacity:1;transform:translate(-50%,-50%) scale(1)}
-    }
+    @keyframes popIn{from{opacity:0;transform:translate(-50%,-50%) scale(.22)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 
-    /* Empty state */
     .empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;opacity:.4}
     .empty-icon{font-size:52px}
     .empty-text{font-size:14px;color:rgba(255,255,255,.5);text-align:center;max-width:220px;line-height:1.65}
 
     /* ── Back button ── */
     #back-btn{
-      position:fixed;bottom:28px;left:50%;
+      position:fixed;bottom:26px;left:50%;
       transform:translateX(-50%) translateY(90px);
-      background:rgba(8,8,24,.92);backdrop-filter:blur(14px);
+      background:rgba(8,8,24,.93);backdrop-filter:blur(14px);
       border:1px solid rgba(255,255,255,.1);border-radius:26px;
-      color:rgba(255,255,255,.65);padding:10px 22px;font-size:13px;font-weight:600;
+      color:rgba(255,255,255,.62);padding:10px 22px;font-size:13px;font-weight:600;
       cursor:pointer;z-index:60;display:flex;align-items:center;gap:8px;
-      transition:transform .35s cubic-bezier(.34,1.2,.64,1),color .2s,border-color .2s;
-      white-space:nowrap;
+      transition:transform .36s cubic-bezier(.34,1.2,.64,1),color .2s,border-color .2s;white-space:nowrap;
     }
     #back-btn.visible{transform:translateX(-50%) translateY(0)}
     #back-btn:hover{color:white;border-color:rgba(255,255,255,.22)}
@@ -169,24 +167,15 @@
       z-index:50;display:flex;flex-direction:column;overflow:hidden;
     }
     #panel.open{transform:translateX(0)}
-
     #panel-header{padding:18px 16px 0;position:relative;flex-shrink:0}
-    #panel-close{
-      position:absolute;top:14px;right:12px;width:28px;height:28px;
-      background:rgba(255,255,255,.06);border:none;border-radius:50%;cursor:pointer;
-      color:rgba(255,255,255,.38);font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s;
-    }
+    #panel-close{position:absolute;top:14px;right:44px;width:28px;height:28px;background:rgba(255,255,255,.06);border:none;border-radius:50%;cursor:pointer;color:rgba(255,255,255,.38);font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s}
     #panel-close:hover{color:white;background:rgba(255,255,255,.12)}
-    #panel-title{font-size:21px;font-weight:800;margin-bottom:4px;padding-right:36px;line-height:1.2}
+    #panel-star{position:absolute;top:14px;right:12px;width:28px;height:28px;background:rgba(255,255,255,.06);border:none;border-radius:50%;cursor:pointer;color:rgba(255,255,255,.38);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+    #panel-star:hover{background:rgba(255,255,255,.12)}
+    #panel-star.starred{color:#fbbf24;background:rgba(251,191,36,.12)}
+    #panel-title{font-size:21px;font-weight:800;margin-bottom:4px;padding-right:70px;line-height:1.2}
     #panel-intuition{font-size:13px;color:rgba(255,255,255,.36);margin-bottom:12px;line-height:1.55}
-
-    #explore-btn{
-      margin:0 16px 14px;flex-shrink:0;
-      background:linear-gradient(135deg,rgba(56,189,248,.09),rgba(168,85,247,.11));
-      border:1px solid rgba(168,85,247,.25);color:#c084fc;
-      padding:9px 14px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;
-      display:flex;align-items:center;justify-content:space-between;transition:all .2s;
-    }
+    #explore-btn{margin:0 16px 14px;flex-shrink:0;background:linear-gradient(135deg,rgba(56,189,248,.09),rgba(168,85,247,.11));border:1px solid rgba(168,85,247,.25);color:#c084fc;padding:9px 14px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:all .2s}
     #explore-btn:hover{background:linear-gradient(135deg,rgba(56,189,248,.18),rgba(168,85,247,.22));color:white;border-color:rgba(168,85,247,.48)}
     #explore-btn:disabled{opacity:.45;cursor:not-allowed}
 
@@ -224,10 +213,21 @@
     .paper-link{font-size:12px;color:#38bdf8;text-decoration:none}
     .paper-link:hover{text-decoration:underline}
 
-    .sec{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.18);margin-bottom:10px}
+    .sec{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.18);margin-bottom:10px;margin-top:18px}
+    .sec:first-child{margin-top:0}
     .chips{display:flex;flex-wrap:wrap;gap:7px}
     .chip{background:rgba(168,85,247,.09);border:1px solid rgba(168,85,247,.18);color:#c084fc;padding:5px 11px;border-radius:16px;font-size:12px;cursor:pointer;transition:all .18s}
     .chip:hover{background:rgba(168,85,247,.22);border-color:rgba(168,85,247,.44);color:white}
+
+    /* Recommendation cards */
+    .rec-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:11px 13px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:background .18s}
+    .rec-card:hover{background:rgba(255,255,255,.06)}
+    .rec-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .rec-label{font-size:13px;font-weight:600;flex:1}
+    .rec-domain{font-size:11px;color:rgba(255,255,255,.3)}
+
+    /* Stale banner */
+    .stale-banner{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:9px 12px;margin-bottom:14px;font-size:12px;color:rgba(251,191,36,.85);display:flex;align-items:center;gap:8px}
 
     /* Settings */
     #settings-modal{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center}
@@ -256,18 +256,21 @@
 <div id="topbar">
   <div class="logo">知识气泡</div>
   <nav id="breadcrumb"></nav>
-  <input id="search-input" type="text" placeholder="Enter 添加概念…">
-  <button id="settings-btn" title="设置">⚙</button>
+  <div id="search-wrap">
+    <input id="search-input" type="text" placeholder="搜索 / 添加…" autocomplete="off">
+    <div id="search-dropdown"></div>
+  </div>
+  <button class="icon-btn" id="bookmark-btn" title="收藏">⭐</button>
+  <button class="icon-btn" id="settings-btn" title="设置">⚙</button>
 </div>
 
 <div id="arena"></div>
-
-<!-- Back button -->
 <button id="back-btn">← 返回上一层</button>
 
 <div id="panel">
   <div id="panel-header">
     <button id="panel-close">✕</button>
+    <button id="panel-star" title="收藏">☆</button>
     <div id="panel-title"></div>
     <div id="panel-intuition"></div>
   </div>
@@ -307,7 +310,6 @@
 <script>
 'use strict';
 
-// ─── Seeds ───────────────────────────────────────────────────────────────────
 const SEEDS = [
   {id:'cv',           label:'计算机视觉',  domain:'cv',  level:0, parentId:null},
   {id:'llm',          label:'大语言模型',  domain:'llm', level:0, parentId:null},
@@ -323,7 +325,10 @@ const SEEDS = [
   {id:'rag',          label:'RAG',         domain:'llm', level:1, parentId:'llm'},
 ];
 
-// ─── Settings ────────────────────────────────────────────────────────────────
+const DCOL = {cv:'#38bdf8', llm:'#a855f7', gen:'#f97316'};
+const DNAME = {cv:'计算机视觉', llm:'大语言模型', gen:'其他'};
+const STALE_MS = 7 * 86400000;
+
 const S = {
   get key()    { return localStorage.getItem('ds_key') || ''; },
   set key(v)   { localStorage.setItem('ds_key', v); },
@@ -335,7 +340,7 @@ const S = {
 const DB = (() => {
   let _db;
   const open = () => new Promise((ok,fail) => {
-    const r = indexedDB.open('KB4', 1);
+    const r = indexedDB.open('KB5', 1);
     r.onupgradeneeded = e => {
       const d = e.target.result;
       if (!d.objectStoreNames.contains('nodes')) d.createObjectStore('nodes',{keyPath:'id'});
@@ -351,7 +356,7 @@ const DB = (() => {
 
 // ─── API ─────────────────────────────────────────────────────────────────────
 async function fetchContent(label, domain) {
-  const ctx = domain==='cv'?'计算机视觉':domain==='llm'?'大语言模型':'人工智能';
+  const ctx = DNAME[domain] || '人工智能';
   const prompt =
 `你是${ctx}领域技术知识助手。为"${label}"生成学习卡片。
 返回合法 JSON，字段值中换行用 \\n，不要输出 JSON 以外的任何内容：
@@ -373,7 +378,7 @@ async function fetchContent(label, domain) {
   let raw = (await resp.json()).choices[0].message.content.trim();
   if (raw.startsWith('```')) raw = raw.replace(/^```(?:json)?\n?/,'').replace(/\n?```$/,'');
   const s = raw.indexOf('{'), e = raw.lastIndexOf('}');
-  if (s >= 0 && e > s) raw = raw.slice(s, e+1);
+  if (s>=0 && e>s) raw = raw.slice(s,e+1);
   return JSON.parse(raw);
 }
 
@@ -382,15 +387,15 @@ let nodes = [];
 let currentNodeId = null;
 let breadcrumb = [];
 let activeBubbleId = null;
+let viewMode = 'normal'; // 'normal' | 'bookmarks'
 
 const getNode = id => nodes.find(n => n.id === id);
 const getChildren = pid => nodes.filter(n => n.parentId === pid);
+const isStale = n => n.visited && n.lastClicked && (Date.now()-n.lastClicked) > STALE_MS;
 
 // ─── Layouts ─────────────────────────────────────────────────────────────────
 const LAYOUTS = [
-  [],
-  [[50,50]],
-  [[30,50],[70,50]],
+  [],[[50,50]],[[30,50],[70,50]],
   [[50,27],[24,65],[76,65]],
   [[28,30],[72,30],[22,68],[78,68]],
   [[50,20],[80,42],[70,76],[30,76],[20,42]],
@@ -399,12 +404,40 @@ const LAYOUTS = [
   [[50,13],[72,20],[89,38],[90,60],[74,80],[52,89],[30,80],[11,60],[11,38]],
 ];
 function getLayout(n) {
-  if (n <= 0) return [];
-  if (n < LAYOUTS.length) return LAYOUTS[n];
-  return Array.from({length:n},(_,i)=>{
-    const c=4, row=Math.floor(i/c), col=i%c, rows=Math.ceil(n/c);
-    return [14+col*24, 22+row*(54/Math.max(rows-1,1))];
-  });
+  if (n<=0) return [];
+  if (n<LAYOUTS.length) return LAYOUTS[n];
+  return Array.from({length:n},(_,i)=>{const c=4,row=Math.floor(i/c),col=i%c,rows=Math.ceil(n/c);return[14+col*24,22+row*(54/Math.max(rows-1,1))];});
+}
+
+// ─── Progress ring ───────────────────────────────────────────────────────────
+function progressRing(node, sz) {
+  const kids = getChildren(node.id);
+  if (!kids.length && !node.childrenGenerated) return '';
+  const pct = kids.length ? kids.filter(k=>k.visited).length / kids.length : 0;
+  const pad = 9, full = sz + pad*2;
+  const cx = full/2, cy = full/2, r = sz/2 + 4;
+  const circ = 2*Math.PI*r;
+  const fill = pct * circ;
+  const col = DCOL[node.domain] || '#fff';
+  return `<svg class="pring" style="top:${-pad}px;left:${-pad}px;width:${full}px;height:${full}px" viewBox="0 0 ${full} ${full}">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="2.5"/>
+    ${fill>0.5?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="2.5"
+      stroke-dasharray="${fill.toFixed(1)} ${circ.toFixed(1)}" stroke-linecap="round"
+      transform="rotate(-90 ${cx} ${cy})" opacity="0.72"/>`:''}
+  </svg>`;
+}
+
+// ─── Recommendations ─────────────────────────────────────────────────────────
+function getRecommendations(current) {
+  const visited = nodes.filter(n=>n.visited && n.id!==current.id);
+  if (visited.length < 2) return [];
+
+  // Find unvisited nodes, score by domain match and level proximity
+  return nodes
+    .filter(n => !n.visited && n.id!==current.id && n.level>0 && n.parentId)
+    .map(n => ({n, score:(n.domain===current.domain?3:1) - Math.abs(n.level-current.level)*0.4}))
+    .sort((a,b)=>b.score-a.score)
+    .slice(0,3).map(x=>x.n);
 }
 
 // ─── Render bubbles ───────────────────────────────────────────────────────────
@@ -412,79 +445,93 @@ const FLOATS = ['f0','f1','f2','f3','f4','f5'];
 
 function renderBubbles() {
   const arena = document.getElementById('arena');
-  const children = getChildren(currentNodeId);
   const backBtn = document.getElementById('back-btn');
-  backBtn.classList.toggle('visible', currentNodeId !== null);
+
+  let children;
+  if (viewMode === 'bookmarks') {
+    children = nodes.filter(n => n.starred);
+    backBtn.classList.remove('visible');
+  } else {
+    children = getChildren(currentNodeId);
+    backBtn.classList.toggle('visible', currentNodeId !== null);
+  }
 
   if (children.length === 0) {
     arena.innerHTML = `<div class="empty">
-      <div class="empty-icon">🌱</div>
-      <div class="empty-text">点击气泡打开面板，<br>再点「深入探索」进入下一层</div>
+      <div class="empty-icon">${viewMode==='bookmarks'?'⭐':'🌱'}</div>
+      <div class="empty-text">${viewMode==='bookmarks'?'还没有收藏的概念<br>点击面板右上角 ☆ 收藏':'点击气泡打开面板，<br>再点「深入探索」进入下一层'}</div>
     </div>`;
     return;
   }
 
   arena.innerHTML = '';
   const positions = getLayout(children.length);
-  const vw = window.innerWidth, vh = window.innerHeight - 52;
+  const vw = window.innerWidth, vh = window.innerHeight-52;
 
   children.forEach((node, i) => {
-    const [cx, cy] = positions[i] || [50,50];
-    const maxSz = Math.min(vw, vh) * 0.27;
+    const [cx,cy] = positions[i]||[50,50];
+    const maxSz = Math.min(vw,vh)*0.27;
     const sz = Math.min(node.level===0?160:node.level===1?122:98, maxSz);
-    const kf = FLOATS[i % FLOATS.length];
-    const dur = 4.5 + (i%4)*0.65;
-    const del = (i*0.48)%2.8;
-    const popDel = i*0.06;
-    const hasKids = node.childrenGenerated || getChildren(node.id).length > 0;
+    const kf = FLOATS[i%FLOATS.length];
+    const dur = 4.5+(i%4)*0.65, del = (i*0.48)%2.8, popDel = i*0.06;
+    const hasKids = node.childrenGenerated || getChildren(node.id).length>0;
+    const stale = isStale(node);
+
+    const cls = ['bubble',node.domain,
+      node.visited?'visited':'',
+      stale?'stale':'',
+      activeBubbleId===node.id?'selected':''
+    ].filter(Boolean).join(' ');
 
     const div = document.createElement('div');
-    div.className = `bubble ${node.domain}${node.visited?' visited':''}${activeBubbleId===node.id?' selected':''}`;
+    div.className = cls;
     div.dataset.id = node.id;
     div.style.cssText = `left:${cx}%;top:${cy}%;
       animation:popIn .48s cubic-bezier(.175,.885,.32,1.275) ${popDel}s backwards,
                 ${kf} ${dur}s ease-in-out ${del}s infinite;`;
 
-    div.innerHTML = `<div class="bubble-body" style="width:${sz}px;height:${sz}px">
-      <div class="bubble-label">${node.label}</div>
-      <div class="bubble-dot"></div>
-      ${hasKids?'<div class="bubble-arrow">▾ ▾</div>':''}
+    div.innerHTML = `<div class="bubble-wrap">
+      ${progressRing(node, sz)}
+      <div class="bubble-body" style="width:${sz}px;height:${sz}px">
+        <div class="bubble-label">${node.label}</div>
+        <div class="bubble-dot"></div>
+        ${hasKids?'<div class="bubble-arrow">▾ ▾</div>':''}
+      </div>
+      ${node.starred?'<div class="bubble-star">⭐</div>':''}
     </div>`;
 
-    div.addEventListener('click', () => onBubbleClick(node));
+    div.addEventListener('click', ()=>onBubbleClick(node));
     arena.appendChild(div);
   });
 }
 
 function renderBreadcrumb() {
   const nav = document.getElementById('breadcrumb');
-  const crumbs = [{id:null, label:'首页'}, ...breadcrumb];
-  nav.innerHTML = crumbs.map((c,i) => {
+  if (viewMode==='bookmarks') {
+    nav.innerHTML = '<span class="crumb active">⭐ 收藏</span>';
+    return;
+  }
+  const crumbs = [{id:null,label:'首页'}, ...breadcrumb];
+  nav.innerHTML = crumbs.map((c,i)=>{
     const last = i===crumbs.length-1;
     return (i>0?'<span class="crumb-sep">›</span>':'')+
       `<span class="crumb${last?' active':''}" data-idx="${i}">${c.label}</span>`;
   }).join('');
-  nav.querySelectorAll('.crumb:not(.active)').forEach(el => {
-    el.addEventListener('click', () => {
-      const idx = +el.dataset.idx;
-      breadcrumb = idx===0 ? [] : breadcrumb.slice(0, idx);
-      currentNodeId = idx===0 ? null : breadcrumb[breadcrumb.length-1].id;
-      activeBubbleId = null;
-      closePanel();
-      renderBreadcrumb();
-      renderBubbles();
+  nav.querySelectorAll('.crumb:not(.active)').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const idx=+el.dataset.idx;
+      breadcrumb = idx===0?[]:breadcrumb.slice(0,idx);
+      currentNodeId = idx===0?null:breadcrumb[breadcrumb.length-1].id;
+      activeBubbleId=null; closePanel(); renderBreadcrumb(); renderBubbles();
     });
   });
 }
 
 function navigateBack() {
-  if (currentNodeId === null) return;
+  if (currentNodeId===null) return;
   breadcrumb.pop();
-  currentNodeId = breadcrumb.length > 0 ? breadcrumb[breadcrumb.length-1].id : null;
-  activeBubbleId = null;
-  closePanel();
-  renderBreadcrumb();
-  renderBubbles();
+  currentNodeId = breadcrumb.length>0?breadcrumb[breadcrumb.length-1].id:null;
+  activeBubbleId=null; closePanel(); renderBreadcrumb(); renderBubbles();
 }
 
 // ─── Panel ───────────────────────────────────────────────────────────────────
@@ -493,238 +540,270 @@ function openPanel(node) {
   renderBubbles();
   document.getElementById('panel').classList.add('open');
   document.getElementById('panel-title').textContent = node.label;
-  document.getElementById('panel-intuition').textContent = node.content?.intuition || '生成中…';
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab==='concept'));
-  document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id==='tab-concept'));
+  document.getElementById('panel-intuition').textContent = node.content?.intuition||'生成中…';
+  const starBtn = document.getElementById('panel-star');
+  starBtn.textContent = node.starred?'★':'☆';
+  starBtn.classList.toggle('starred', !!node.starred);
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab==='concept'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.toggle('active',p.id==='tab-concept'));
   if (node.content) renderPanelContent(node.content, node);
   else { setLoading(); loadContent(node); }
 }
 
 function closePanel() {
   document.getElementById('panel').classList.remove('open');
-  activeBubbleId = null;
-  renderBubbles();
+  activeBubbleId=null; renderBubbles();
 }
 
 function setLoading() {
-  const h = `<div class="loading"><div class="spinner"></div><p>AI 生成中…</p></div>`;
-  ['concept','mechanism','code','papers'].forEach(t => {
-    document.getElementById('tab-'+t).innerHTML = h;
-  });
+  const h=`<div class="loading"><div class="spinner"></div><p>AI 生成中…</p></div>`;
+  ['concept','mechanism','code','papers'].forEach(t=>{ document.getElementById('tab-'+t).innerHTML=h; });
 }
 
 async function loadContent(node) {
   if (!S.key) {
-    document.getElementById('tab-concept').innerHTML =
-      `<div style="padding:12px;color:rgba(255,255,255,.4);font-size:13px;line-height:1.7">请先点右上角 ⚙ 填入 DeepSeek API Key</div>`;
+    document.getElementById('tab-concept').innerHTML=`<div style="padding:12px;color:rgba(255,255,255,.4);font-size:13px;line-height:1.7">请先点右上角 ⚙ 填入 DeepSeek API Key</div>`;
     document.getElementById('settings-modal').classList.add('open');
     return;
   }
   try {
     const c = await fetchContent(node.label, node.domain);
-    node.content = c; node.visited = true;
+    node.content=c; node.visited=true; node.lastClicked=Date.now();
     await DB.put(node);
-    document.getElementById('panel-intuition').textContent = c.intuition;
-    renderPanelContent(c, node);
-    renderBubbles();
+    document.getElementById('panel-intuition').textContent=c.intuition;
+    renderPanelContent(c,node); renderBubbles();
     if (!node.childrenGenerated) spawnChildren(node, c.subtopics);
   } catch(err) {
-    document.getElementById('tab-concept').innerHTML =
-      `<div style="padding:12px;color:#f87171;font-size:13px;line-height:1.7">
-        生成失败：${err.message}<br>
-        <small style="color:rgba(255,255,255,.28)">请检查 API Key 或稍后重试</small>
-      </div>`;
+    document.getElementById('tab-concept').innerHTML=
+      `<div style="padding:12px;color:#f87171;font-size:13px;line-height:1.7">生成失败：${err.message}<br><small style="color:rgba(255,255,255,.28)">请检查 API Key 或稍后重试</small></div>`;
   }
 }
 
 function renderPanelContent(c, node) {
   const md = s => `<div class="md">${marked.parse(s||'')}</div>`;
   const codeRaw = (c.code||'').replace(/\\n/g,'\n');
+  const stale = isStale(node);
+  const recs = getRecommendations(node);
 
-  document.getElementById('tab-concept').innerHTML =
-    md(c.problem)+
-    `<div style="margin-top:18px">
-       <div class="sec">延伸话题</div>
-       <div class="chips">${(c.subtopics||[]).map(s=>
-         `<span class="chip" data-label="${s}" data-parent="${node.id}" data-domain="${node.domain}">${s}</span>`
-       ).join('')}</div>
-     </div>`;
+  // Tab: concept
+  let conceptHtml = '';
+  if (stale) conceptHtml += `<div class="stale-banner">⏰ 距上次学习已超过7天，建议复习</div>`;
+  conceptHtml += md(c.problem);
+  conceptHtml += `<div class="sec">延伸话题</div><div class="chips">${(c.subtopics||[]).map(s=>
+    `<span class="chip" data-label="${s}" data-parent="${node.id}" data-domain="${node.domain}">${s}</span>`
+  ).join('')}</div>`;
+  if (recs.length) {
+    conceptHtml += `<div class="sec">推荐探索</div>`;
+    recs.forEach(r => {
+      conceptHtml += `<div class="rec-card" data-id="${r.id}">
+        <div class="rec-dot" style="background:${DCOL[r.domain]||'#fff'}"></div>
+        <div class="rec-label">${r.label}</div>
+        <div class="rec-domain">${DNAME[r.domain]||''}</div>
+      </div>`;
+    });
+  }
+  document.getElementById('tab-concept').innerHTML = conceptHtml;
 
   document.getElementById('tab-mechanism').innerHTML = md(c.mechanism);
-  document.getElementById('tab-code').innerHTML =
-    `<div class="md">${marked.parse('```python\n'+codeRaw+'\n```')}</div>`;
+  document.getElementById('tab-code').innerHTML = `<div class="md">${marked.parse('```python\n'+codeRaw+'\n```')}</div>`;
   document.getElementById('tab-papers').innerHTML = (c.papers||[]).length
-    ? (c.papers||[]).map(p=>`
-        <div class="paper-card">
-          <div class="paper-title">${p.title||''}</div>
-          <div class="paper-meta">${p.authors||''} · ${p.year||''}</div>
-          ${p.url?`<a class="paper-link" href="${p.url}" target="_blank" rel="noopener">→ 查看原文</a>`:''}
-        </div>`).join('')
+    ? (c.papers||[]).map(p=>`<div class="paper-card"><div class="paper-title">${p.title||''}</div><div class="paper-meta">${p.authors||''} · ${p.year||''}</div>${p.url?`<a class="paper-link" href="${p.url}" target="_blank" rel="noopener">→ 查看原文</a>`:''}</div>`).join('')
     : `<div style="color:rgba(255,255,255,.22);font-size:13px">暂无论文信息</div>`;
 
-  document.querySelectorAll('#panel-body pre code').forEach(el => hljs.highlightElement(el));
-  document.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => addNode(chip.dataset.label, chip.dataset.parent, chip.dataset.domain, true));
+  document.querySelectorAll('#panel-body pre code').forEach(el=>hljs.highlightElement(el));
+  document.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click',()=>addNode(chip.dataset.label,chip.dataset.parent,chip.dataset.domain,true));
+  });
+  document.querySelectorAll('.rec-card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      const n=getNode(card.dataset.id);
+      if(n) onBubbleClick(n);
+    });
   });
 }
 
 // ─── Spawn / add ─────────────────────────────────────────────────────────────
 async function spawnChildren(parent, subtopics) {
-  parent.childrenGenerated = true;
-  await DB.put(parent);
-  const n = Math.min((subtopics||[]).length, S.count);
-  for (let i=0; i<n; i++) {
-    const label = subtopics[i];
-    if (nodes.find(nd => nd.label===label)) continue;
-    const id = 'n'+Date.now()+Math.random().toString(36).slice(2,5);
-    const nd = {id,label,domain:parent.domain,level:parent.level+1,parentId:parent.id,clicks:0,visited:false,childrenGenerated:false,content:null};
-    nodes.push(nd);
-    await DB.put(nd);
+  parent.childrenGenerated=true; await DB.put(parent);
+  const n=Math.min((subtopics||[]).length,S.count);
+  for(let i=0;i<n;i++){
+    const label=subtopics[i];
+    if(nodes.find(nd=>nd.label===label)) continue;
+    const id='n'+Date.now()+Math.random().toString(36).slice(2,5);
+    const nd={id,label,domain:parent.domain,level:parent.level+1,parentId:parent.id,clicks:0,visited:false,childrenGenerated:false,content:null,starred:false};
+    nodes.push(nd); await DB.put(nd);
   }
-  if (currentNodeId===parent.id) renderBubbles();
+  if(currentNodeId===parent.id) renderBubbles();
 }
 
-async function addNode(label, parentId=null, domain='gen', andOpen=false) {
-  const ex = nodes.find(n => n.label===label);
-  if (ex) { if(andOpen) onBubbleClick(ex); return; }
-  const id = 'n'+Date.now()+Math.random().toString(36).slice(2,5);
-  const parent = getNode(parentId);
-  const nd = {id,label,domain:domain||parent?.domain||'gen',level:parent?parent.level+1:0,parentId:parentId||null,clicks:0,visited:false,childrenGenerated:false,content:null};
-  nodes.push(nd);
-  await DB.put(nd);
-  renderBubbles();
-  if (andOpen) onBubbleClick(nd);
+async function addNode(label,parentId=null,domain='gen',andOpen=false){
+  const ex=nodes.find(n=>n.label===label);
+  if(ex){if(andOpen)onBubbleClick(ex);return;}
+  const id='n'+Date.now()+Math.random().toString(36).slice(2,5);
+  const parent=getNode(parentId);
+  const nd={id,label,domain:domain||parent?.domain||'gen',level:parent?parent.level+1:0,parentId:parentId||null,clicks:0,visited:false,childrenGenerated:false,content:null,starred:false};
+  nodes.push(nd); await DB.put(nd); renderBubbles();
+  if(andOpen)onBubbleClick(nd);
 }
 
 // ─── Explore ─────────────────────────────────────────────────────────────────
-async function exploreNode(nodeId) {
-  const node = getNode(nodeId);
-  if (!node) return;
-  const btn = document.getElementById('explore-btn');
-  if (!node.childrenGenerated) {
-    if (!S.key) { document.getElementById('settings-modal').classList.add('open'); return; }
-    btn.innerHTML = '生成子话题中…'; btn.disabled = true;
-    try {
-      if (!node.content) {
-        const c = await fetchContent(node.label, node.domain);
-        node.content = c; node.visited = true;
+async function exploreNode(nodeId){
+  const node=getNode(nodeId); if(!node) return;
+  const btn=document.getElementById('explore-btn');
+  if(!node.childrenGenerated){
+    if(!S.key){document.getElementById('settings-modal').classList.add('open');return;}
+    btn.innerHTML='生成子话题中…'; btn.disabled=true;
+    try{
+      if(!node.content){
+        const c=await fetchContent(node.label,node.domain);
+        node.content=c; node.visited=true; node.lastClicked=Date.now();
         await DB.put(node);
-        document.getElementById('panel-intuition').textContent = c.intuition;
-        renderPanelContent(c, node);
+        document.getElementById('panel-intuition').textContent=c.intuition;
+        renderPanelContent(c,node);
       }
-      await spawnChildren(node, node.content.subtopics);
-    } catch(e) {
-      toast('生成失败：'+e.message);
-      btn.innerHTML = '深入探索，展开子话题 <span>→</span>'; btn.disabled = false;
-      return;
-    }
+      await spawnChildren(node,node.content.subtopics);
+    }catch(e){toast('生成失败：'+e.message);btn.innerHTML='深入探索，展开子话题 <span>→</span>';btn.disabled=false;return;}
   }
   closePanel();
-  breadcrumb.push({id:node.id, label:node.label});
-  currentNodeId = node.id;
-  renderBreadcrumb();
-  renderBubbles();
-  btn.innerHTML = '深入探索，展开子话题 <span>→</span>'; btn.disabled = false;
+  breadcrumb.push({id:node.id,label:node.label});
+  currentNodeId=node.id;
+  renderBreadcrumb(); renderBubbles();
+  btn.innerHTML='深入探索，展开子话题 <span>→</span>'; btn.disabled=false;
 }
 
-// ─── Events ──────────────────────────────────────────────────────────────────
-async function onBubbleClick(node) {
-  node.clicks = (node.clicks||0)+1;
-  node.lastClicked = Date.now();
-  node.visited = true;
+// ─── Bubble click ─────────────────────────────────────────────────────────────
+async function onBubbleClick(node){
+  node.clicks=(node.clicks||0)+1;
+  node.lastClicked=Date.now();
+  node.visited=true;
   await DB.put(node);
   openPanel(node);
 }
 
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  setTimeout(()=>el.classList.remove('show'), 2200);
+// ─── Search ───────────────────────────────────────────────────────────────────
+function renderSearchDropdown(q) {
+  const dd = document.getElementById('search-dropdown');
+  if (!q) { dd.classList.remove('open'); return; }
+  const matches = nodes.filter(n => n.label.toLowerCase().includes(q.toLowerCase())).slice(0,6);
+  if (!matches.length) {
+    dd.innerHTML = `<div class="sdrop-empty">按 Enter 添加「${q}」</div>`;
+  } else {
+    dd.innerHTML = matches.map(n => {
+      const path = n.parentId ? (getNode(n.parentId)?.label||'') : '';
+      return `<div class="sdrop-item" data-id="${n.id}">
+        <div class="sdrop-dot" style="background:${DCOL[n.domain]||'#fff'}"></div>
+        <div class="sdrop-label">${n.label}</div>
+        ${path?`<div class="sdrop-path">${path}</div>`:''}
+      </div>`;
+    }).join('');
+    dd.querySelectorAll('.sdrop-item').forEach(el=>{
+      el.addEventListener('click',()=>{
+        const n=getNode(el.dataset.id);
+        if(n){onBubbleClick(n); dd.classList.remove('open'); document.getElementById('search-input').value='';}
+      });
+    });
+  }
+  dd.classList.add('open');
 }
 
-function initUI() {
-  // Panel
-  document.getElementById('panel-close').addEventListener('click', closePanel);
-  document.getElementById('arena').addEventListener('click', e => {
-    if (e.target===document.getElementById('arena')) closePanel();
-  });
+// ─── Star / bookmark ──────────────────────────────────────────────────────────
+async function toggleStar(nodeId){
+  const node=getNode(nodeId); if(!node) return;
+  node.starred=!node.starred;
+  await DB.put(node);
+  const btn=document.getElementById('panel-star');
+  btn.textContent=node.starred?'★':'☆';
+  btn.classList.toggle('starred',node.starred);
+  toast(node.starred?`已收藏「${node.label}」`:`已取消收藏`);
+  renderBubbles();
+}
 
-  // Back button
-  document.getElementById('back-btn').addEventListener('click', navigateBack);
+// ─── Toast ────────────────────────────────────────────────────────────────────
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2200);
+}
 
-  // Swipe right to go back
-  let swipeX = 0;
-  document.addEventListener('touchstart', e => { swipeX = e.touches[0].clientX; }, {passive:true});
-  document.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - swipeX;
-    if (dx > 72 && currentNodeId !== null && !document.getElementById('panel').classList.contains('open')) {
-      navigateBack();
-    }
-  }, {passive:true});
+// ─── UI wiring ────────────────────────────────────────────────────────────────
+function initUI(){
+  document.getElementById('panel-close').addEventListener('click',closePanel);
+  document.getElementById('panel-star').addEventListener('click',()=>{if(activeBubbleId)toggleStar(activeBubbleId);});
+  document.getElementById('arena').addEventListener('click',e=>{if(e.target===document.getElementById('arena'))closePanel();});
+  document.getElementById('back-btn').addEventListener('click',navigateBack);
+  document.getElementById('explore-btn').addEventListener('click',()=>{if(activeBubbleId)exploreNode(activeBubbleId);});
 
-  // Explore
-  document.getElementById('explore-btn').addEventListener('click', () => {
-    if (activeBubbleId) exploreNode(activeBubbleId);
+  // Bookmark toggle
+  document.getElementById('bookmark-btn').addEventListener('click',()=>{
+    viewMode = viewMode==='bookmarks'?'normal':'bookmarks';
+    document.getElementById('bookmark-btn').classList.toggle('active',viewMode==='bookmarks');
+    activeBubbleId=null; closePanel(); renderBreadcrumb(); renderBubbles();
   });
 
   // Tabs
-  document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(tab=>{
+    tab.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
       tab.classList.add('active');
       document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
     });
   });
 
   // Search
-  document.getElementById('search-input').addEventListener('keydown', async e => {
+  const si = document.getElementById('search-input');
+  si.addEventListener('input', e => renderSearchDropdown(e.target.value.trim()));
+  si.addEventListener('keydown', async e => {
+    if (e.key==='Escape') { document.getElementById('search-dropdown').classList.remove('open'); si.value=''; return; }
     if (e.key==='Enter') {
-      const v = e.target.value.trim();
-      if (v) {
-        await addNode(v, currentNodeId||null, getNode(currentNodeId)?.domain||'gen', true);
-        e.target.value = '';
-        toast(`已添加「${v}」`);
-      }
+      const v=si.value.trim();
+      if(v){ await addNode(v,currentNodeId||null,getNode(currentNodeId)?.domain||'gen',true); si.value=''; document.getElementById('search-dropdown').classList.remove('open'); toast(`已添加「${v}」`); }
     }
+  });
+  document.addEventListener('click', e => {
+    if (!document.getElementById('search-wrap').contains(e.target))
+      document.getElementById('search-dropdown').classList.remove('open');
   });
 
   // Settings
-  document.getElementById('settings-btn').addEventListener('click', () => {
-    document.getElementById('api-key-input').value = S.key;
-    document.getElementById('sub-count').value = S.count;
+  document.getElementById('settings-btn').addEventListener('click',()=>{
+    document.getElementById('api-key-input').value=S.key;
+    document.getElementById('sub-count').value=S.count;
     document.getElementById('settings-modal').classList.add('open');
   });
-  document.getElementById('modal-cancel').addEventListener('click', () =>
-    document.getElementById('settings-modal').classList.remove('open'));
-  document.getElementById('modal-save').addEventListener('click', () => {
-    S.key   = document.getElementById('api-key-input').value.trim();
-    S.count = +document.getElementById('sub-count').value;
+  document.getElementById('modal-cancel').addEventListener('click',()=>document.getElementById('settings-modal').classList.remove('open'));
+  document.getElementById('modal-save').addEventListener('click',()=>{
+    S.key=document.getElementById('api-key-input').value.trim();
+    S.count=+document.getElementById('sub-count').value;
     document.getElementById('settings-modal').classList.remove('open');
     toast('设置已保存');
   });
-  document.getElementById('settings-modal').addEventListener('click', e => {
-    if (e.target===document.getElementById('settings-modal'))
-      document.getElementById('settings-modal').classList.remove('open');
+  document.getElementById('settings-modal').addEventListener('click',e=>{
+    if(e.target===document.getElementById('settings-modal'))document.getElementById('settings-modal').classList.remove('open');
   });
 
-  window.addEventListener('resize', renderBubbles);
+  // Swipe right to go back
+  let swipeX=0;
+  document.addEventListener('touchstart',e=>{swipeX=e.touches[0].clientX;},{passive:true});
+  document.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-swipeX;
+    if(dx>72&&currentNodeId!==null&&!document.getElementById('panel').classList.contains('open'))navigateBack();
+  },{passive:true});
+
+  window.addEventListener('resize',renderBubbles);
 }
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
-async function boot() {
+async function boot(){
   await DB.open();
-  const saved = await DB.all();
-  if (saved.length===0) {
-    for (const s of SEEDS) {
-      const n = {...s,clicks:0,visited:false,childrenGenerated:false,content:null};
-      nodes.push(n); await DB.put(n);
-    }
-  } else { nodes = saved; }
-  initUI();
-  renderBreadcrumb();
-  renderBubbles();
-  if (!S.key) setTimeout(()=>document.getElementById('settings-modal').classList.add('open'),600);
+  const saved=await DB.all();
+  if(saved.length===0){
+    for(const s of SEEDS){const n={...s,clicks:0,visited:false,childrenGenerated:false,content:null,starred:false};nodes.push(n);await DB.put(n);}
+  } else {
+    nodes=saved.map(n=>({starred:false,...n})); // backfill starred field
+  }
+  initUI(); renderBreadcrumb(); renderBubbles();
+  if(!S.key) setTimeout(()=>document.getElementById('settings-modal').classList.add('open'),600);
 }
 
 boot();
