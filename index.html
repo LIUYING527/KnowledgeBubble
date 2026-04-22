@@ -2,301 +2,303 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
   <title>知识气泡</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%;overflow:hidden}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      background:#06060f;
+      color:#e2e8f0;
+    }
 
-    body {
-      background: #050510;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      color: #e2e8f0;
-      overflow: hidden;
-      height: 100vh;
+    /* ── Starfield ── */
+    body::before{
+      content:'';
+      position:fixed;inset:0;
+      background-image:
+        radial-gradient(1px 1px at 15% 25%,rgba(255,255,255,.5) 0%,transparent 100%),
+        radial-gradient(1px 1px at 85% 15%,rgba(255,255,255,.4) 0%,transparent 100%),
+        radial-gradient(1px 1px at 60% 80%,rgba(255,255,255,.35) 0%,transparent 100%),
+        radial-gradient(1px 1px at 40% 55%,rgba(255,255,255,.3) 0%,transparent 100%),
+        radial-gradient(1px 1px at 90% 60%,rgba(255,255,255,.45) 0%,transparent 100%),
+        radial-gradient(1px 1px at 10% 70%,rgba(255,255,255,.3) 0%,transparent 100%),
+        radial-gradient(1px 1px at 70% 35%,rgba(255,255,255,.4) 0%,transparent 100%),
+        radial-gradient(1px 1px at 30% 90%,rgba(255,255,255,.25) 0%,transparent 100%),
+        radial-gradient(1px 1px at 55% 10%,rgba(255,255,255,.4) 0%,transparent 100%),
+        radial-gradient(1px 1px at 5%  45%,rgba(255,255,255,.3) 0%,transparent 100%),
+        radial-gradient(circle at 20% 40%,rgba(56,189,248,.04) 0%,transparent 55%),
+        radial-gradient(circle at 80% 65%,rgba(168,85,247,.04) 0%,transparent 55%);
+      pointer-events:none;
+      z-index:0;
     }
 
     /* ── Topbar ── */
-    #topbar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: 54px;
-      background: rgba(5,5,20,0.88);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-      display: flex;
-      align-items: center;
-      padding: 0 14px;
-      gap: 10px;
-      z-index: 100;
+    #topbar{
+      position:fixed;top:0;left:0;right:0;
+      height:52px;
+      background:rgba(6,6,15,.9);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid rgba(255,255,255,.06);
+      display:flex;align-items:center;
+      padding:0 14px;gap:10px;
+      z-index:100;
+    }
+    .logo{
+      font-size:16px;font-weight:800;
+      background:linear-gradient(135deg,#38bdf8,#a855f7);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      white-space:nowrap;flex-shrink:0;
+    }
+    #breadcrumb{
+      flex:1;display:flex;align-items:center;gap:2px;
+      overflow:hidden;font-size:12px;min-width:0;
+    }
+    .crumb{
+      color:rgba(255,255,255,.38);cursor:pointer;
+      padding:3px 7px;border-radius:6px;
+      white-space:nowrap;transition:all .15s;
+      flex-shrink:0;
+    }
+    .crumb:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.06)}
+    .crumb.active{color:white;cursor:default;flex-shrink:1;overflow:hidden;text-overflow:ellipsis}
+    .crumb-sep{color:rgba(255,255,255,.18);flex-shrink:0;padding:0 1px}
+    #search-input{
+      width:160px;flex-shrink:0;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:20px;padding:7px 13px;
+      color:#e2e8f0;font-size:13px;outline:none;
+      transition:border-color .2s;
+    }
+    #search-input:focus{border-color:rgba(168,85,247,.45);width:200px}
+    #search-input::placeholder{color:rgba(255,255,255,.2)}
+    #settings-btn{
+      width:32px;height:32px;flex-shrink:0;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:50%;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      color:rgba(255,255,255,.4);font-size:14px;transition:all .2s;
+    }
+    #settings-btn:hover{color:white;border-color:rgba(255,255,255,.2)}
+
+    /* ── Arena ── */
+    #arena{
+      position:fixed;top:52px;left:0;right:0;bottom:0;
+      z-index:1;
     }
 
-    .logo {
-      font-size: 17px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #38bdf8, #a855f7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      white-space: nowrap;
-      letter-spacing: -0.3px;
+    /* ── Bubbles ── */
+    .bubble{
+      position:absolute;
+      transform:translate(-50%,-50%);
+      cursor:pointer;
+      transition:z-index 0s;
     }
-
-    #search-input {
-      flex: 1;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 22px;
-      padding: 8px 16px;
-      color: #e2e8f0;
-      font-size: 13px;
-      outline: none;
-      transition: border-color 0.2s;
-      min-width: 0;
+    .bubble-body{
+      border-radius:50%;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      text-align:center;padding:14px;
+      transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s;
+      /* glass */
+      background:radial-gradient(circle at 38% 30%,rgba(255,255,255,.2) 0%,rgba(255,255,255,.06) 45%,rgba(0,0,0,.08) 100%);
+      border:1px solid rgba(255,255,255,.16);
+      backdrop-filter:blur(6px);
     }
-    #search-input:focus { border-color: rgba(168,85,247,0.5); }
-    #search-input::placeholder { color: rgba(255,255,255,0.25); }
+    .bubble:hover .bubble-body{transform:scale(1.09)}
+    .bubble.selected .bubble-body{transform:scale(1.12)}
 
-    #settings-btn {
-      width: 34px; height: 34px;
-      flex-shrink: 0;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      color: rgba(255,255,255,0.45);
-      font-size: 15px;
-      transition: all 0.2s;
+    .bubble.cv .bubble-body{
+      box-shadow:0 0 32px rgba(56,189,248,.38),0 10px 28px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.22);
     }
-    #settings-btn:hover { color: white; border-color: rgba(255,255,255,0.25); }
-
-    /* ── Graph ── */
-    #graph {
-      position: fixed;
-      top: 54px; left: 0; right: 0; bottom: 0;
+    .bubble.llm .bubble-body{
+      box-shadow:0 0 32px rgba(168,85,247,.38),0 10px 28px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.22);
     }
-    #graph svg { width: 100%; height: 100%; cursor: grab; }
-    #graph svg:active { cursor: grabbing; }
-
-    .link {
-      stroke: rgba(255,255,255,0.07);
-      stroke-width: 1.5;
-      fill: none;
+    .bubble.gen .bubble-body{
+      box-shadow:0 0 32px rgba(249,115,22,.38),0 10px 28px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.22);
     }
+    .bubble.selected.cv .bubble-body{box-shadow:0 0 44px rgba(56,189,248,.65),0 12px 32px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.3)}
+    .bubble.selected.llm .bubble-body{box-shadow:0 0 44px rgba(168,85,247,.65),0 12px 32px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.3)}
+    .bubble.selected.gen .bubble-body{box-shadow:0 0 44px rgba(249,115,22,.65),0 12px 32px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.3)}
 
-    .node { cursor: pointer; }
-
-    .node circle {
-      transition: filter 0.2s;
-      stroke-width: 1.5;
+    .bubble-label{
+      font-size:13px;font-weight:700;
+      color:rgba(255,255,255,.92);
+      line-height:1.3;pointer-events:none;
     }
-    .node:hover circle { filter: brightness(1.25) drop-shadow(0 0 6px rgba(255,255,255,0.3)); }
-    .node.selected circle { filter: brightness(1.4) drop-shadow(0 0 10px rgba(168,85,247,0.8)); stroke: rgba(255,255,255,0.6) !important; stroke-width: 2.5 !important; }
-
-    .node text {
-      pointer-events: none;
-      font-size: 11px;
-      font-weight: 700;
-      fill: rgba(255,255,255,0.92);
-      text-anchor: middle;
-      dominant-baseline: middle;
+    .bubble-dot{
+      width:5px;height:5px;border-radius:50%;
+      margin-top:7px;
+      background:rgba(255,255,255,.2);
+      transition:background .3s;
     }
+    .bubble.visited .bubble-dot{background:rgba(134,239,172,.75);box-shadow:0 0 6px rgba(134,239,172,.5)}
+
+    /* has-children indicator */
+    .bubble-arrow{
+      font-size:9px;color:rgba(255,255,255,.3);
+      margin-top:2px;pointer-events:none;
+      transition:color .2s;
+    }
+    .bubble:hover .bubble-arrow{color:rgba(255,255,255,.65)}
+
+    /* Animations */
+    @keyframes popIn{
+      from{opacity:0;transform:translate(-50%,-50%) scale(0.25)}
+      to  {opacity:1;transform:translate(-50%,-50%) scale(1)}
+    }
+    @keyframes f0{0%,100%{margin-top:0}       50%{margin-top:-11px}}
+    @keyframes f1{0%,100%{margin-top:-4px}    50%{margin-top:9px}}
+    @keyframes f2{0%,100%{margin-top:7px}     50%{margin-top:-9px}}
+    @keyframes f3{0%,100%{margin-top:-2px}    50%{margin-top:12px}}
+    @keyframes f4{0%,100%{margin-top:8px}     50%{margin-top:-7px}}
+    @keyframes f5{0%,100%{margin-top:-6px}    50%{margin-top:8px}}
+
+    /* Empty state */
+    .empty{
+      position:absolute;inset:0;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      gap:14px;opacity:.45;
+    }
+    .empty-icon{font-size:52px}
+    .empty-text{font-size:14px;color:rgba(255,255,255,.5);text-align:center;max-width:220px;line-height:1.6}
 
     /* ── Side Panel ── */
-    #panel {
-      position: fixed;
-      top: 54px; right: 0; bottom: 0;
-      width: 400px;
-      background: rgba(7,7,22,0.97);
-      backdrop-filter: blur(20px);
-      border-left: 1px solid rgba(255,255,255,0.07);
-      transform: translateX(100%);
-      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-      z-index: 50;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+    #panel{
+      position:fixed;top:52px;right:0;bottom:0;
+      width:390px;
+      background:rgba(6,6,20,.97);
+      backdrop-filter:blur(20px);
+      border-left:1px solid rgba(255,255,255,.06);
+      transform:translateX(100%);
+      transition:transform .3s cubic-bezier(.4,0,.2,1);
+      z-index:50;
+      display:flex;flex-direction:column;overflow:hidden;
     }
-    #panel.open { transform: translateX(0); }
+    #panel.open{transform:translateX(0)}
 
-    #panel-header {
-      padding: 18px 18px 0;
-      flex-shrink: 0;
-      position: relative;
+    #panel-header{padding:18px 16px 0;position:relative;flex-shrink:0}
+    #panel-close{
+      position:absolute;top:14px;right:12px;
+      width:28px;height:28px;
+      background:rgba(255,255,255,.06);
+      border:none;border-radius:50%;cursor:pointer;
+      color:rgba(255,255,255,.4);font-size:13px;
+      display:flex;align-items:center;justify-content:center;
+      transition:all .15s;
     }
+    #panel-close:hover{color:white;background:rgba(255,255,255,.12)}
+    #panel-title{font-size:21px;font-weight:800;margin-bottom:4px;padding-right:36px;line-height:1.2}
+    #panel-intuition{font-size:13px;color:rgba(255,255,255,.38);margin-bottom:12px;line-height:1.55}
 
-    #panel-close {
-      position: absolute;
-      top: 14px; right: 14px;
-      width: 28px; height: 28px;
-      background: rgba(255,255,255,0.07);
-      border: none; border-radius: 50%;
-      cursor: pointer;
-      color: rgba(255,255,255,0.4);
-      font-size: 13px;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s;
+    #explore-btn{
+      margin:0 16px 14px;
+      background:linear-gradient(135deg,rgba(56,189,248,.1),rgba(168,85,247,.12));
+      border:1px solid rgba(168,85,247,.28);
+      color:#c084fc;padding:9px 14px;border-radius:10px;
+      font-size:13px;font-weight:700;cursor:pointer;
+      display:flex;align-items:center;justify-content:space-between;
+      transition:all .2s;flex-shrink:0;
     }
-    #panel-close:hover { color: white; background: rgba(255,255,255,0.12); }
+    #explore-btn:hover{background:linear-gradient(135deg,rgba(56,189,248,.18),rgba(168,85,247,.22));color:white;border-color:rgba(168,85,247,.5)}
+    #explore-btn:disabled{opacity:.5;cursor:not-allowed}
 
-    #panel-title {
-      font-size: 21px;
-      font-weight: 800;
-      margin-bottom: 5px;
-      padding-right: 36px;
-      line-height: 1.2;
-    }
-    #panel-intuition {
-      font-size: 13px;
-      color: rgba(255,255,255,0.45);
-      margin-bottom: 14px;
-      line-height: 1.5;
-    }
+    .tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.06);padding:0 16px;flex-shrink:0;gap:2px}
+    .tab{padding:8px 11px;font-size:12px;font-weight:600;cursor:pointer;color:rgba(255,255,255,.3);border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+    .tab:hover{color:rgba(255,255,255,.6)}
+    .tab.active{color:white;border-bottom-color:#a855f7}
 
-    .tabs {
-      display: flex;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-      padding: 0 18px;
-      gap: 2px;
-      flex-shrink: 0;
-    }
-    .tab {
-      padding: 8px 12px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      color: rgba(255,255,255,0.35);
-      border-bottom: 2px solid transparent;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .tab:hover { color: rgba(255,255,255,0.65); }
-    .tab.active { color: white; border-bottom-color: #a855f7; }
+    #panel-body{flex:1;overflow-y:auto;padding:16px}
+    #panel-body::-webkit-scrollbar{width:3px}
+    #panel-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px}
 
-    #panel-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 18px;
-    }
-    #panel-content::-webkit-scrollbar { width: 3px; }
-    #panel-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-
-    .tab-pane { display: none; }
-    .tab-pane.active { display: block; }
+    .tab-pane{display:none}
+    .tab-pane.active{display:block}
 
     /* Markdown */
-    .md h1,.md h2,.md h3 { color: white; margin: 14px 0 6px; font-size: 14px; }
-    .md p { color: rgba(255,255,255,0.7); line-height: 1.7; margin-bottom: 10px; font-size: 13px; }
-    .md ul,.md ol { color: rgba(255,255,255,0.7); font-size: 13px; padding-left: 18px; margin-bottom: 10px; }
-    .md li { margin-bottom: 4px; line-height: 1.6; }
-    .md code { background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px; font-size: 12px; font-family: 'JetBrains Mono',monospace; color: #93c5fd; }
-    .md pre { background: #0d1117; border-radius: 8px; padding: 14px; overflow-x: auto; margin: 10px 0; border: 1px solid rgba(255,255,255,0.06); }
-    .md pre code { background: transparent; padding: 0; font-size: 12px; line-height: 1.65; color: inherit; }
-    .md blockquote { border-left: 3px solid #a855f7; padding-left: 12px; color: rgba(255,255,255,0.5); font-style: italic; margin: 10px 0; }
-    .md strong { color: white; }
-    .md a { color: #38bdf8; text-decoration: none; }
-    .md a:hover { text-decoration: underline; }
+    .md p{font-size:13px;line-height:1.78;color:rgba(255,255,255,.68);margin-bottom:10px}
+    .md ul,.md ol{font-size:13px;line-height:1.72;color:rgba(255,255,255,.68);padding-left:18px;margin-bottom:10px}
+    .md li{margin-bottom:3px}
+    .md strong{color:rgba(255,255,255,.9)}
+    .md h1,.md h2,.md h3{color:white;font-size:14px;margin:14px 0 6px}
+    .md code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;font-size:12px;color:#93c5fd;font-family:'JetBrains Mono',monospace}
+    .md pre{background:#0d1117;border-radius:8px;padding:14px;overflow-x:auto;margin:10px 0;border:1px solid rgba(255,255,255,.05)}
+    .md pre code{background:transparent;padding:0;font-size:12px;line-height:1.65;color:inherit}
+    .md blockquote{border-left:3px solid #a855f7;padding-left:12px;color:rgba(255,255,255,.45);font-style:italic;margin:10px 0}
+    .md a{color:#38bdf8;text-decoration:none}
+    .md a:hover{text-decoration:underline}
 
     /* Loading */
-    .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; gap: 14px; }
-    .spinner { width: 36px; height: 36px; border: 3px solid rgba(168,85,247,0.15); border-top-color: #a855f7; border-radius: 50%; animation: spin 0.75s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text { color: rgba(255,255,255,0.3); font-size: 13px; }
+    .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 20px;gap:14px}
+    .spinner{width:34px;height:34px;border:3px solid rgba(168,85,247,.15);border-top-color:#a855f7;border-radius:50%;animation:spin .75s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading p{color:rgba(255,255,255,.3);font-size:13px}
 
     /* Papers */
-    .paper-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
-    .paper-title { font-size: 13px; font-weight: 700; color: #c084fc; margin-bottom: 3px; }
-    .paper-meta { font-size: 12px; color: rgba(255,255,255,0.35); margin-bottom: 8px; }
-    .paper-link { font-size: 12px; color: #38bdf8; text-decoration: none; }
-    .paper-link:hover { text-decoration: underline; }
+    .paper-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:13px;margin-bottom:10px}
+    .paper-title{font-size:13px;font-weight:700;color:#c084fc;margin-bottom:3px}
+    .paper-meta{font-size:12px;color:rgba(255,255,255,.3);margin-bottom:8px}
+    .paper-link{font-size:12px;color:#38bdf8;text-decoration:none}
+    .paper-link:hover{text-decoration:underline}
 
-    /* Subtopic chips */
-    .section-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.25); margin-bottom: 10px; }
-    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
-    .chip {
-      background: rgba(168,85,247,0.1);
-      border: 1px solid rgba(168,85,247,0.2);
-      color: #c084fc;
-      padding: 5px 11px;
-      border-radius: 18px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.18s;
-    }
-    .chip:hover { background: rgba(168,85,247,0.22); border-color: rgba(168,85,247,0.45); color: white; }
+    .sec{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:10px}
+    .chips{display:flex;flex-wrap:wrap;gap:7px}
+    .chip{background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.2);color:#c084fc;padding:5px 11px;border-radius:16px;font-size:12px;cursor:pointer;transition:all .18s}
+    .chip:hover{background:rgba(168,85,247,.22);border-color:rgba(168,85,247,.45);color:white}
 
-    /* Settings modal */
-    #settings-modal {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.65);
-      backdrop-filter: blur(4px);
-      z-index: 200;
-      display: none;
-      align-items: center;
-      justify-content: center;
-    }
-    #settings-modal.open { display: flex; }
-    .modal-box { background: #0c0c24; border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; padding: 26px; width: 360px; max-width: calc(100vw - 32px); }
-    .modal-title { font-size: 17px; font-weight: 800; margin-bottom: 20px; }
-    .form-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4); margin-bottom: 6px; display: block; letter-spacing: 0.05em; }
-    .form-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 13px; color: white; font-size: 13px; outline: none; margin-bottom: 16px; font-family: monospace; transition: border-color 0.2s; }
-    .form-input:focus { border-color: rgba(168,85,247,0.5); }
-    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
-    .btn-primary { background: linear-gradient(135deg,#7c3aed,#a855f7); border: none; color: white; padding: 9px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 700; }
-    .btn-secondary { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); padding: 9px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+    /* Settings */
+    #settings-modal{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center}
+    #settings-modal.open{display:flex}
+    .modal-box{background:#0a0a1e;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;width:350px;max-width:calc(100vw - 32px)}
+    .modal-title{font-size:17px;font-weight:800;margin-bottom:18px}
+    .form-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.35);margin-bottom:5px;display:block;letter-spacing:.06em;text-transform:uppercase}
+    .form-input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:8px;padding:9px 12px;color:white;font-size:13px;outline:none;margin-bottom:14px;font-family:monospace;transition:border-color .2s}
+    .form-input:focus{border-color:rgba(168,85,247,.5)}
+    .modal-actions{display:flex;gap:10px;justify-content:flex-end}
+    .btn-p{background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;color:white;padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700}
+    .btn-s{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);color:rgba(255,255,255,.6);padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px}
 
     /* Toast */
-    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: rgba(30,30,60,0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px 18px; font-size: 13px; color: rgba(255,255,255,0.8); z-index: 300; transition: transform 0.3s; pointer-events: none; white-space: nowrap; }
-    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(15,15,40,.95);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:9px 18px;font-size:13px;color:rgba(255,255,255,.8);z-index:300;transition:transform .3s;pointer-events:none;white-space:nowrap}
+    #toast.show{transform:translateX(-50%) translateY(0)}
 
-    @media (max-width: 600px) {
-      #panel { width: 100%; border-left: none; border-top: 1px solid rgba(255,255,255,0.07); }
+    @media(max-width:600px){
+      #panel{width:100%;border-left:none;border-top:1px solid rgba(255,255,255,.06)}
+      #search-input{width:100px}
+      #search-input:focus{width:140px}
     }
   </style>
 </head>
 <body>
 
-<!-- Topbar -->
 <div id="topbar">
   <div class="logo">知识气泡</div>
-  <input id="search-input" type="text" placeholder="输入概念，按 Enter 添加…">
+  <nav id="breadcrumb"></nav>
+  <input id="search-input" type="text" placeholder="输入概念 Enter…">
   <button id="settings-btn" title="设置">⚙</button>
 </div>
 
-<!-- Graph -->
-<div id="graph">
-  <svg>
-    <defs>
-      <radialGradient id="g-cv" cx="40%" cy="35%" r="70%">
-        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.95"/>
-        <stop offset="100%" stop-color="#0369a1" stop-opacity="0.75"/>
-      </radialGradient>
-      <radialGradient id="g-llm" cx="40%" cy="35%" r="70%">
-        <stop offset="0%" stop-color="#c084fc" stop-opacity="0.95"/>
-        <stop offset="100%" stop-color="#6d28d9" stop-opacity="0.75"/>
-      </radialGradient>
-      <radialGradient id="g-gen" cx="40%" cy="35%" r="70%">
-        <stop offset="0%" stop-color="#fb923c" stop-opacity="0.95"/>
-        <stop offset="100%" stop-color="#b45309" stop-opacity="0.75"/>
-      </radialGradient>
-    </defs>
-  </svg>
-</div>
+<div id="arena"></div>
 
-<!-- Side Panel -->
 <div id="panel">
   <div id="panel-header">
     <button id="panel-close">✕</button>
     <div id="panel-title"></div>
     <div id="panel-intuition"></div>
   </div>
+  <button id="explore-btn">深入探索，展开子话题 <span>→</span></button>
   <div class="tabs">
     <div class="tab active" data-tab="concept">💡 概念</div>
     <div class="tab" data-tab="mechanism">⚙️ 原理</div>
     <div class="tab" data-tab="code">💻 代码</div>
     <div class="tab" data-tab="papers">📄 论文</div>
   </div>
-  <div id="panel-content">
+  <div id="panel-body">
     <div class="tab-pane active" id="tab-concept"></div>
     <div class="tab-pane" id="tab-mechanism"></div>
     <div class="tab-pane" id="tab-code"></div>
@@ -304,399 +306,479 @@
   </div>
 </div>
 
-<!-- Settings Modal -->
 <div id="settings-modal">
   <div class="modal-box">
     <div class="modal-title">⚙️ 设置</div>
-    <label class="form-label">DEEPSEEK API KEY</label>
+    <label class="form-label">DeepSeek API Key</label>
     <input class="form-input" id="api-key-input" type="password" placeholder="sk-…">
-    <label class="form-label">每个气泡生成子话题数量</label>
-    <input class="form-input" id="subtopic-count" type="number" value="5" min="3" max="8">
+    <label class="form-label">每个气泡的子话题数量</label>
+    <input class="form-input" id="sub-count" type="number" value="5" min="3" max="8">
     <div class="modal-actions">
-      <button class="btn-secondary" id="modal-cancel">取消</button>
-      <button class="btn-primary" id="modal-save">保存</button>
+      <button class="btn-s" id="modal-cancel">取消</button>
+      <button class="btn-p" id="modal-save">保存</button>
     </div>
   </div>
 </div>
 
-<!-- Toast -->
 <div id="toast"></div>
 
-<script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 'use strict';
 
-// ── Seeds ────────────────────────────────────────────────────────────
+// ─── Seeds ───────────────────────────────────────────────────────────────────
 const SEEDS = [
-  { id:'cv',            label:'计算机视觉',  domain:'cv',  level:0, parentId:null },
-  { id:'llm',           label:'大语言模型',  domain:'llm', level:0, parentId:null },
-  { id:'detection',     label:'目标检测',    domain:'cv',  level:1, parentId:'cv'  },
-  { id:'segmentation',  label:'图像分割',    domain:'cv',  level:1, parentId:'cv'  },
-  { id:'vit',           label:'ViT',         domain:'cv',  level:1, parentId:'cv'  },
-  { id:'multimodal',    label:'多模态',      domain:'cv',  level:1, parentId:'cv'  },
-  { id:'imggen',        label:'图像生成',    domain:'cv',  level:1, parentId:'cv'  },
-  { id:'transformer',   label:'Transformer', domain:'llm', level:1, parentId:'llm' },
-  { id:'pretraining',   label:'预训练',      domain:'llm', level:1, parentId:'llm' },
-  { id:'rlhf',          label:'RLHF',        domain:'llm', level:1, parentId:'llm' },
-  { id:'agent',         label:'Agent',       domain:'llm', level:1, parentId:'llm' },
-  { id:'rag',           label:'RAG',         domain:'llm', level:1, parentId:'llm' },
+  {id:'cv',           label:'计算机视觉',  domain:'cv',  level:0, parentId:null},
+  {id:'llm',          label:'大语言模型',  domain:'llm', level:0, parentId:null},
+  {id:'detection',    label:'目标检测',    domain:'cv',  level:1, parentId:'cv'},
+  {id:'segmentation', label:'图像分割',    domain:'cv',  level:1, parentId:'cv'},
+  {id:'vit',          label:'ViT',         domain:'cv',  level:1, parentId:'cv'},
+  {id:'multimodal',   label:'多模态',      domain:'cv',  level:1, parentId:'cv'},
+  {id:'imggen',       label:'图像生成',    domain:'cv',  level:1, parentId:'cv'},
+  {id:'transformer',  label:'Transformer', domain:'llm', level:1, parentId:'llm'},
+  {id:'pretraining',  label:'预训练',      domain:'llm', level:1, parentId:'llm'},
+  {id:'rlhf',         label:'RLHF',        domain:'llm', level:1, parentId:'llm'},
+  {id:'agent',        label:'Agent',       domain:'llm', level:1, parentId:'llm'},
+  {id:'rag',          label:'RAG',         domain:'llm', level:1, parentId:'llm'},
 ];
 
-// ── Settings ─────────────────────────────────────────────────────────
+// ─── Settings ────────────────────────────────────────────────────────────────
 const S = {
-  get key()   { return localStorage.getItem('ds_key') || ''; },
-  set key(v)  { localStorage.setItem('ds_key', v); },
-  get count() { return +(localStorage.getItem('sub_count') || 5); },
-  set count(v){ localStorage.setItem('sub_count', v); },
+  get key()    { return localStorage.getItem('ds_key') || ''; },
+  set key(v)   { localStorage.setItem('ds_key', v); },
+  get count()  { return +(localStorage.getItem('sub_n') || 5); },
+  set count(v) { localStorage.setItem('sub_n', v); },
 };
 
-// ── IndexedDB ────────────────────────────────────────────────────────
+// ─── IndexedDB ───────────────────────────────────────────────────────────────
 const DB = (() => {
   let _db;
   const open = () => new Promise((ok, fail) => {
-    const r = indexedDB.open('KBubbles', 1);
+    const r = indexedDB.open('KB3', 1);
     r.onupgradeneeded = e => {
       const d = e.target.result;
-      if (!d.objectStoreNames.contains('nodes')) d.createObjectStore('nodes', { keyPath:'id' });
-      if (!d.objectStoreNames.contains('edges')) d.createObjectStore('edges', { keyPath:'id' });
+      if (!d.objectStoreNames.contains('nodes')) d.createObjectStore('nodes', {keyPath:'id'});
     };
     r.onsuccess = e => { _db = e.target.result; ok(); };
     r.onerror = fail;
   });
-  const store = (name, mode) => _db.transaction(name, mode).objectStore(name);
-  const all  = name => new Promise((ok,fail) => { const r = store(name,'readonly').getAll(); r.onsuccess=()=>ok(r.result); r.onerror=fail; });
-  const put  = (name, item) => new Promise((ok,fail) => { const r = store(name,'readwrite').put(item); r.onsuccess=ok; r.onerror=fail; });
+  const st = m => _db.transaction('nodes', m).objectStore('nodes');
+  const all = () => new Promise((ok,fail) => { const r=st('readonly').getAll(); r.onsuccess=()=>ok(r.result); r.onerror=fail; });
+  const put = item => new Promise((ok,fail) => { const r=st('readwrite').put(item); r.onsuccess=ok; r.onerror=fail; });
   return { open, all, put };
 })();
 
-// ── DeepSeek API ─────────────────────────────────────────────────────
+// ─── API ─────────────────────────────────────────────────────────────────────
 async function fetchContent(label, domain) {
-  const ctx = domain==='cv' ? '计算机视觉' : domain==='llm' ? '大语言模型' : '人工智能';
-  const prompt = `你是一个专注于${ctx}的技术知识助手。为概念"${label}"生成结构化学习卡片。
-
-返回严格 JSON（无 markdown 包裹），字段：
+  const ctx = domain==='cv'?'计算机视觉':domain==='llm'?'大语言模型':'人工智能';
+  const prompt =
+`你是${ctx}领域的技术知识助手。为概念"${label}"生成学习卡片。
+返回一个合法 JSON 对象，注意：字段值内换行用 \\n 表示，不要使用真实换行，不要在 JSON 外加任何内容：
 {
-  "intuition": "一句话直觉（≤20字，说清楚它是什么）",
-  "problem": "它解决了什么问题（Markdown，约100字）",
-  "mechanism": "工作原理（Markdown，含关键公式用代码块，约250字）",
-  "code": "最小可运行 Python/PyTorch 示例（≤20行，有注释，用 \`\`\`python 代码块）",
-  "papers": [{"title":"论文全名","authors":"第一作者 et al.","year":2017,"url":"https://arxiv.org/abs/..."}],
+  "intuition": "一句话核心直觉，20字以内",
+  "problem": "解决了什么问题，用 Markdown 格式，约100字",
+  "mechanism": "工作原理，用 Markdown 格式（公式用反引号包裹），约200字",
+  "code": "最小 Python 示例，约12行，有注释，每行之间用 \\\\n 分隔，不加 markdown 代码围栏",
+  "papers": [{"title":"论文名","authors":"第一作者 et al.","year":2017,"url":"https://arxiv.org/abs/xxxx.xxxxx"}],
   "subtopics": ["具体子概念1","具体子概念2","具体子概念3","具体子概念4","具体子概念5"]
-}
-
-subtopics 要具体（如"Scaled Dot-Product Attention"而非"注意力"）。只返回 JSON。`;
+}`;
 
   const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${S.key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model:'deepseek-chat', messages:[{role:'user',content:prompt}], temperature:0.7, max_tokens:2000 }),
+    headers: {'Authorization':`Bearer ${S.key}`,'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model: 'deepseek-chat',
+      messages: [{role:'user', content:prompt}],
+      temperature: 0.7,
+      max_tokens: 3000,
+    }),
   });
   if (!resp.ok) throw new Error(`API ${resp.status}`);
   let raw = (await resp.json()).choices[0].message.content.trim();
-  if (raw.startsWith('```')) { raw = raw.split('```')[1]; if (raw.startsWith('json')) raw = raw.slice(4); }
-  return JSON.parse(raw.trim());
+
+  // Strip markdown fences if present
+  if (raw.startsWith('```')) {
+    raw = raw.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+  }
+  // Extract outermost { }
+  const s = raw.indexOf('{'), e = raw.lastIndexOf('}');
+  if (s >= 0 && e > s) raw = raw.slice(s, e + 1);
+
+  return JSON.parse(raw);
 }
 
-// ── Graph state ──────────────────────────────────────────────────────
-let nodes = [], edges = [], sim, svgG, linkSel, nodeSel;
+// ─── State ───────────────────────────────────────────────────────────────────
+let nodes = [];
+let currentNodeId = null;   // null = root
+let breadcrumb = [];        // [{id, label}]
+let activeBubbleId = null;
 
-const radius = d => {
-  const base = d.level===0 ? 44 : d.level===1 ? 33 : 24;
-  return base + Math.min((d.clicks||0)*1.5, 10);
-};
+const getNode = id => nodes.find(n => n.id === id);
+const getChildren = pid => nodes.filter(n => n.parentId === pid);
 
-const gradId = d => d.domain==='cv' ? 'url(#g-cv)' : d.domain==='llm' ? 'url(#g-llm)' : 'url(#g-gen)';
+// ─── Bubble layout positions ──────────────────────────────────────────────────
+// Returns [cx%, cy%] for each bubble
+const LAYOUTS = [
+  [],
+  [[50,50]],
+  [[30,50],[70,50]],
+  [[50,28],[24,64],[76,64]],
+  [[28,32],[72,32],[22,68],[78,68]],
+  [[50,20],[80,42],[70,76],[30,76],[20,42]],
+  [[50,18],[78,32],[85,60],[66,82],[34,82],[15,60],[22,32]],
+  [[50,15],[74,25],[88,50],[78,75],[55,88],[32,88],[12,75],[26,25]],
+  [[50,14],[72,22],[88,42],[88,62],[70,80],[50,88],[30,80],[12,62],[12,42]],
+];
 
-function initSim() {
-  const el = document.getElementById('graph');
-  const W = el.clientWidth, H = el.clientHeight;
-
-  const svg = d3.select('#graph svg');
-  svgG = svg.append('g');
-
-  svg.call(d3.zoom().scaleExtent([0.25,3.5]).on('zoom', e => svgG.attr('transform', e.transform)));
-
-  linkSel = svgG.append('g');
-  nodeSel = svgG.append('g');
-
-  sim = d3.forceSimulation()
-    .force('link', d3.forceLink().id(d=>d.id).distance(d => {
-      const lv = Math.max(
-        nodes.find(n=>n.id===(d.source.id||d.source))?.level||0,
-        nodes.find(n=>n.id===(d.target.id||d.target))?.level||0
-      );
-      return lv===0 ? 200 : lv===1 ? 140 : 105;
-    }))
-    .force('charge', d3.forceManyBody().strength(-520))
-    .force('center', d3.forceCenter(W/2, H/2))
-    .force('collide', d3.forceCollide().radius(d=>radius(d)+14))
-    .on('tick', () => {
-      linkSel.selectAll('line')
-        .attr('x1',d=>d.source.x).attr('y1',d=>d.source.y)
-        .attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
-      nodeSel.selectAll('.node').attr('transform',d=>`translate(${d.x},${d.y})`);
-    });
-}
-
-function render() {
-  // Links
-  const lnk = linkSel.selectAll('line').data(edges, d=>d.id);
-  lnk.enter().append('line').attr('class','link');
-  lnk.exit().remove();
-
-  // Nodes
-  const nd = nodeSel.selectAll('.node').data(nodes, d=>d.id);
-
-  const enter = nd.enter().append('g').attr('class','node')
-    .call(d3.drag()
-      .on('start',(e,d)=>{ if(!e.active) sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
-      .on('drag', (e,d)=>{ d.fx=e.x; d.fy=e.y; })
-      .on('end', (e,d)=>{ if(!e.active) sim.alphaTarget(0); d.fx=null; d.fy=null; })
-    )
-    .on('click',(e,d)=>{ e.stopPropagation(); onNodeClick(d); });
-
-  enter.append('circle');
-  enter.append('text');
-
-  // Update all
-  const all = nodeSel.selectAll('.node');
-  all.select('circle')
-    .attr('r', d=>radius(d))
-    .attr('fill', d=>gradId(d))
-    .attr('stroke', d=>d.visited?'rgba(255,255,255,0.55)':'rgba(255,255,255,0.12)');
-
-  all.select('text').each(function(d) {
-    const el = d3.select(this);
-    el.selectAll('*').remove();
-    const label = d.label;
-    const maxLen = d.level===0 ? 5 : 4;
-    if (label.length <= maxLen) {
-      el.append('tspan').attr('x',0).attr('dy',0).text(label);
-    } else {
-      const mid = Math.ceil(label.length/2);
-      el.append('tspan').attr('x',0).attr('dy','-0.55em').text(label.slice(0,mid));
-      el.append('tspan').attr('x',0).attr('dy','1.1em').text(label.slice(mid));
-    }
+function getLayout(count) {
+  if (count <= 0) return [];
+  if (count < LAYOUTS.length) return LAYOUTS[count];
+  // Fallback: arrange in rows of 4
+  return Array.from({length:count}, (_,i) => {
+    const cols = 4, row = Math.floor(i/cols), col = i%cols;
+    const totalRows = Math.ceil(count/cols);
+    return [15 + col*23, 25 + row*(55/Math.max(totalRows-1,1))];
   });
-
-  nd.exit().remove();
-
-  sim.nodes(nodes);
-  sim.force('link').links(edges);
-  sim.alpha(0.5).restart();
 }
 
-// ── Node click ───────────────────────────────────────────────────────
-async function onNodeClick(d) {
-  nodeSel.selectAll('.node').classed('selected', n=>n.id===d.id);
-  d.clicks = (d.clicks||0)+1;
-  d.lastClicked = Date.now();
-  d.visited = true;
-  await DB.put('nodes', d);
-  render();
-  openPanel(d);
+// ─── Render ───────────────────────────────────────────────────────────────────
+const FLOATS = ['f0','f1','f2','f3','f4','f5'];
+
+function renderBubbles() {
+  const arena = document.getElementById('arena');
+  const children = getChildren(currentNodeId);
+
+  if (children.length === 0) {
+    arena.innerHTML = `<div class="empty">
+      <div class="empty-icon">🌱</div>
+      <div class="empty-text">点击上方气泡打开面板，<br>再点「深入探索」展开子话题</div>
+    </div>`;
+    return;
+  }
+
+  arena.innerHTML = '';
+  const positions = getLayout(children.length);
+
+  children.forEach((node, i) => {
+    const [cx, cy] = positions[i] || [50, 50];
+    const vw = window.innerWidth, vh = window.innerHeight - 52;
+    const maxSz = Math.min(vw, vh) * 0.28;
+    const sz = Math.min(
+      node.level === 0 ? 158 : node.level === 1 ? 120 : 96,
+      maxSz
+    );
+    const floatKf = FLOATS[i % FLOATS.length];
+    const floatDur = 4.4 + (i % 4) * 0.7;
+    const floatDel = (i * 0.45) % 2.5;
+    const popDel   = i * 0.055;
+    const hasKids  = getChildren(node.id).length > 0 || node.childrenGenerated;
+
+    const div = document.createElement('div');
+    div.className = `bubble ${node.domain}${node.visited?' visited':''}${activeBubbleId===node.id?' selected':''}`;
+    div.dataset.id = node.id;
+    div.style.cssText = `left:${cx}%;top:${cy}%;
+      animation:popIn .45s cubic-bezier(.175,.885,.32,1.275) ${popDel}s backwards,
+                ${floatKf} ${floatDur}s ease-in-out ${floatDel}s infinite;`;
+
+    div.innerHTML = `
+      <div class="bubble-body" style="width:${sz}px;height:${sz}px">
+        <div class="bubble-label">${node.label}</div>
+        <div class="bubble-dot"></div>
+        ${hasKids ? `<div class="bubble-arrow">▾▾</div>` : ''}
+      </div>`;
+
+    div.addEventListener('click', () => onBubbleClick(node));
+    arena.appendChild(div);
+  });
 }
 
-// ── Panel ────────────────────────────────────────────────────────────
-function openPanel(d) {
-  document.getElementById('panel').classList.add('open');
-  document.getElementById('panel-title').textContent = d.label;
-  document.getElementById('panel-intuition').textContent = d.content?.intuition || '正在思考…';
+function renderBreadcrumb() {
+  const nav = document.getElementById('breadcrumb');
+  const crumbs = [{id:null, label:'首页'}, ...breadcrumb];
+  nav.innerHTML = crumbs.map((c, i) => {
+    const isLast = i === crumbs.length - 1;
+    return (i > 0 ? '<span class="crumb-sep">›</span>' : '') +
+      `<span class="crumb${isLast?' active':''}" data-idx="${i}">${c.label}</span>`;
+  }).join('');
+
+  nav.querySelectorAll('.crumb:not(.active)').forEach(el => {
+    el.addEventListener('click', () => {
+      const idx = +el.dataset.idx;
+      breadcrumb = idx === 0 ? [] : breadcrumb.slice(0, idx);
+      currentNodeId = idx === 0 ? null : breadcrumb[breadcrumb.length-1].id;
+      activeBubbleId = null;
+      closePanel();
+      renderBreadcrumb();
+      renderBubbles();
+    });
+  });
+}
+
+// ─── Panel ───────────────────────────────────────────────────────────────────
+function openPanel(node) {
+  activeBubbleId = node.id;
+  renderBubbles();
+
+  const panel = document.getElementById('panel');
+  panel.classList.add('open');
+  document.getElementById('panel-title').textContent = node.label;
+  document.getElementById('panel-intuition').textContent = node.content?.intuition || '生成中…';
+
   // Reset to first tab
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab==='concept'));
-  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.toggle('active',p.id==='tab-concept'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab==='concept'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id==='tab-concept'));
 
-  if (d.content) {
-    renderPanel(d.content, d);
+  if (node.content) {
+    renderPanelContent(node.content, node);
   } else {
     setLoading();
-    loadContent(d);
+    loadContent(node);
   }
 }
 
-function setLoading() {
-  const html = `<div class="loading"><div class="spinner"></div><div class="loading-text">AI 生成中…</div></div>`;
-  ['concept','mechanism','code','papers'].forEach(t => { document.getElementById('tab-'+t).innerHTML = html; });
+function closePanel() {
+  document.getElementById('panel').classList.remove('open');
+  activeBubbleId = null;
+  renderBubbles();
 }
 
-async function loadContent(d) {
+function setLoading() {
+  const html = `<div class="loading"><div class="spinner"></div><p>AI 生成中…</p></div>`;
+  ['concept','mechanism','code','papers'].forEach(t => {
+    document.getElementById('tab-'+t).innerHTML = html;
+  });
+}
+
+async function loadContent(node) {
   if (!S.key) {
     document.getElementById('tab-concept').innerHTML =
-      `<div style="padding:16px;color:rgba(255,255,255,0.4);font-size:13px;line-height:1.7">请先点击右上角 ⚙ 填写 DeepSeek API Key</div>`;
+      `<div style="padding:12px;color:rgba(255,255,255,.4);font-size:13px;line-height:1.7">
+        请先点右上角 ⚙ 填入 DeepSeek API Key
+      </div>`;
     document.getElementById('settings-modal').classList.add('open');
     return;
   }
   try {
-    const content = await fetchContent(d.label, d.domain);
-    d.content = content;
-    await DB.put('nodes', d);
-    document.getElementById('panel-intuition').textContent = content.intuition;
-    renderPanel(content, d);
-    if (!d.childrenGenerated) spawnChildren(d, content.subtopics);
+    const c = await fetchContent(node.label, node.domain);
+    node.content = c;
+    node.visited = true;
+    await DB.put(node);
+    document.getElementById('panel-intuition').textContent = c.intuition;
+    renderPanelContent(c, node);
+    renderBubbles();
+    if (!node.childrenGenerated) spawnChildren(node, c.subtopics);
   } catch(err) {
     document.getElementById('tab-concept').innerHTML =
-      `<div style="padding:16px;color:#f87171;font-size:13px">生成失败：${err.message}</div>`;
+      `<div style="padding:12px;color:#f87171;font-size:13px;line-height:1.7">
+        生成失败：${err.message}<br>
+        <small style="color:rgba(255,255,255,.3)">请检查 API Key 是否正确，或稍后重试</small>
+      </div>`;
   }
 }
 
-function renderPanel(c, d) {
-  const md = str => `<div class="md">${marked.parse(str||'')}</div>`;
+function renderPanelContent(c, node) {
+  const md = str => `<div class="md">${marked.parse(str || '')}</div>`;
 
-  // Concept tab: problem + subtopic chips
+  // code: replace escaped \\n with real newlines, wrap in code block
+  const codeRaw = (c.code || '').replace(/\\n/g, '\n');
+  const codeBlock = '```python\n' + codeRaw + '\n```';
+
   document.getElementById('tab-concept').innerHTML =
     md(c.problem) +
     `<div style="margin-top:18px">
-       <div class="section-label">延伸话题</div>
-       <div class="chips">${(c.subtopics||[]).map(s=>
-         `<div class="chip" data-label="${s}" data-parent="${d.id}" data-domain="${d.domain}">${s}</div>`
+       <div class="sec">延伸话题</div>
+       <div class="chips">${(c.subtopics||[]).map(s =>
+         `<span class="chip" data-label="${s}" data-parent="${node.id}" data-domain="${node.domain}">${s}</span>`
        ).join('')}</div>
      </div>`;
 
   document.getElementById('tab-mechanism').innerHTML = md(c.mechanism);
-  document.getElementById('tab-code').innerHTML = md(c.code);
+  document.getElementById('tab-code').innerHTML = md(codeBlock);
   document.getElementById('tab-papers').innerHTML = (c.papers||[]).length
-    ? (c.papers||[]).map(p=>`
+    ? (c.papers||[]).map(p => `
         <div class="paper-card">
           <div class="paper-title">${p.title||''}</div>
           <div class="paper-meta">${p.authors||''} · ${p.year||''}</div>
-          ${p.url?`<a class="paper-link" href="${p.url}" target="_blank" rel="noopener">→ 查看原文</a>`:''}
+          ${p.url ? `<a class="paper-link" href="${p.url}" target="_blank" rel="noopener">→ 查看原文</a>` : ''}
         </div>`).join('')
-    : `<div style="color:rgba(255,255,255,0.25);font-size:13px;padding:8px 0">暂无论文信息</div>`;
+    : `<div style="color:rgba(255,255,255,.25);font-size:13px">暂无论文信息</div>`;
 
-  document.querySelectorAll('#panel-content pre code').forEach(el=>hljs.highlightElement(el));
+  document.querySelectorAll('#panel-body pre code').forEach(el => hljs.highlightElement(el));
 
-  document.querySelectorAll('.chip').forEach(chip=>{
-    chip.addEventListener('click', ()=>{
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
       addNode(chip.dataset.label, chip.dataset.parent, chip.dataset.domain, true);
     });
   });
 }
 
-// ── Children ─────────────────────────────────────────────────────────
+// ─── Spawn children from subtopics ───────────────────────────────────────────
 async function spawnChildren(parent, subtopics) {
   parent.childrenGenerated = true;
-  await DB.put('nodes', parent);
-  const count = Math.min((subtopics||[]).length, S.count);
-  for (let i=0; i<count; i++) {
+  await DB.put(parent);
+  const n = Math.min((subtopics||[]).length, S.count);
+  for (let i = 0; i < n; i++) {
     const label = subtopics[i];
-    if (nodes.find(n=>n.label===label)) continue;
-    await addNode(label, parent.id, parent.domain, false);
+    if (nodes.find(nd => nd.label === label)) continue;
+    const id = 'n' + Date.now() + Math.random().toString(36).slice(2,5);
+    const node = {
+      id, label,
+      domain: parent.domain,
+      level: parent.level + 1,
+      parentId: parent.id,
+      clicks: 0, visited: false, childrenGenerated: false, content: null,
+    };
+    nodes.push(node);
+    await DB.put(node);
   }
+  if (currentNodeId === parent.id) renderBubbles();
 }
 
-// ── Add node ─────────────────────────────────────────────────────────
-async function addNode(label, parentId=null, domain='gen', andOpen=false) {
-  const existing = nodes.find(n=>n.label===label);
-  if (existing) { if(andOpen) onNodeClick(existing); return; }
+// ─── Explore: navigate into a node ───────────────────────────────────────────
+async function exploreNode(nodeId) {
+  const node = getNode(nodeId);
+  if (!node) return;
 
-  const parent = nodes.find(n=>n.id===parentId);
-  const id = 'n' + Date.now() + Math.random().toString(36).slice(2,6);
+  const btn = document.getElementById('explore-btn');
+
+  if (!node.childrenGenerated) {
+    if (!S.key) { document.getElementById('settings-modal').classList.add('open'); return; }
+    btn.textContent = '生成子话题中…';
+    btn.disabled = true;
+    try {
+      if (!node.content) {
+        const c = await fetchContent(node.label, node.domain);
+        node.content = c; node.visited = true;
+        await DB.put(node);
+        document.getElementById('panel-intuition').textContent = c.intuition;
+        renderPanelContent(c, node);
+      }
+      await spawnChildren(node, node.content.subtopics);
+    } catch(e) {
+      toast('生成失败：' + e.message);
+      btn.textContent = '深入探索，展开子话题 →';
+      btn.disabled = false;
+      return;
+    }
+  }
+
+  closePanel();
+  breadcrumb.push({id: node.id, label: node.label});
+  currentNodeId = node.id;
+  renderBreadcrumb();
+  renderBubbles();
+  btn.textContent = '深入探索，展开子话题 →';
+  btn.disabled = false;
+}
+
+// ─── Add node ─────────────────────────────────────────────────────────────────
+async function addNode(label, parentId=null, domain='gen', andOpen=false) {
+  const existing = nodes.find(n => n.label === label);
+  if (existing) { if (andOpen) onBubbleClick(existing); return; }
+
+  const id = 'n' + Date.now() + Math.random().toString(36).slice(2,5);
+  const parent = getNode(parentId);
   const node = {
     id, label,
     domain: domain || parent?.domain || 'gen',
-    level: parent ? parent.level+1 : 1,
-    parentId,
+    level: parent ? parent.level + 1 : 0,
+    parentId: parentId || null,
     clicks: 0, visited: false, childrenGenerated: false, content: null,
-    x: parent ? parent.x+(Math.random()-.5)*80 : undefined,
-    y: parent ? parent.y+(Math.random()-.5)*80 : undefined,
   };
   nodes.push(node);
-  await DB.put('nodes', node);
-
-  if (parentId) {
-    const edge = { id:`${parentId}→${id}`, source:parentId, target:id };
-    edges.push(edge);
-    await DB.put('edges', edge);
-  }
-
-  render();
-  if (andOpen) onNodeClick(node);
+  await DB.put(node);
+  renderBubbles();
+  if (andOpen) onBubbleClick(node);
 }
 
-// ── Toast ─────────────────────────────────────────────────────────────
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(()=>el.classList.remove('show'), 2200);
+// ─── Bubble click ─────────────────────────────────────────────────────────────
+async function onBubbleClick(node) {
+  node.clicks = (node.clicks||0) + 1;
+  node.lastClicked = Date.now();
+  node.visited = true;
+  await DB.put(node);
+  openPanel(node);
 }
 
-// ── UI wiring ─────────────────────────────────────────────────────────
+// ─── UI wiring ────────────────────────────────────────────────────────────────
 function initUI() {
-  document.getElementById('panel-close').addEventListener('click', ()=>{
-    document.getElementById('panel').classList.remove('open');
-    nodeSel.selectAll('.node').classed('selected',false);
-  });
-  document.getElementById('graph').addEventListener('click', ()=>{
-    document.getElementById('panel').classList.remove('open');
-    nodeSel?.selectAll('.node').classed('selected',false);
+  document.getElementById('panel-close').addEventListener('click', closePanel);
+
+  document.getElementById('arena').addEventListener('click', e => {
+    if (e.target === document.getElementById('arena')) closePanel();
   });
 
-  document.querySelectorAll('.tab').forEach(tab=>{
-    tab.addEventListener('click',()=>{
-      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-      document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('explore-btn').addEventListener('click', () => {
+    if (activeBubbleId) exploreNode(activeBubbleId);
+  });
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
       tab.classList.add('active');
-      document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
     });
   });
 
-  document.getElementById('search-input').addEventListener('keydown', async e=>{
-    if (e.key==='Enter') {
+  document.getElementById('search-input').addEventListener('keydown', async e => {
+    if (e.key === 'Enter') {
       const v = e.target.value.trim();
-      if (v) { await addNode(v, null, 'gen', true); e.target.value=''; toast(`已添加「${v}」`); }
+      if (v) {
+        await addNode(v, currentNodeId || null, getNode(currentNodeId)?.domain || 'gen', true);
+        e.target.value = '';
+        toast(`已添加「${v}」`);
+      }
     }
   });
 
-  document.getElementById('settings-btn').addEventListener('click', ()=>{
+  document.getElementById('settings-btn').addEventListener('click', () => {
     document.getElementById('api-key-input').value = S.key;
-    document.getElementById('subtopic-count').value = S.count;
+    document.getElementById('sub-count').value = S.count;
     document.getElementById('settings-modal').classList.add('open');
   });
-  document.getElementById('modal-cancel').addEventListener('click',()=>
+  document.getElementById('modal-cancel').addEventListener('click', () =>
     document.getElementById('settings-modal').classList.remove('open'));
-  document.getElementById('modal-save').addEventListener('click',()=>{
-    S.key = document.getElementById('api-key-input').value.trim();
-    S.count = +document.getElementById('subtopic-count').value;
+  document.getElementById('modal-save').addEventListener('click', () => {
+    S.key   = document.getElementById('api-key-input').value.trim();
+    S.count = +document.getElementById('sub-count').value;
     document.getElementById('settings-modal').classList.remove('open');
     toast('设置已保存');
   });
-  document.getElementById('settings-modal').addEventListener('click', e=>{
-    if(e.target===document.getElementById('settings-modal'))
+  document.getElementById('settings-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('settings-modal'))
       document.getElementById('settings-modal').classList.remove('open');
   });
+
+  window.addEventListener('resize', renderBubbles);
 }
 
-// ── Boot ──────────────────────────────────────────────────────────────
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
 async function boot() {
   await DB.open();
+  const saved = await DB.all();
 
-  const savedNodes = await DB.all('nodes');
-  const savedEdges = await DB.all('edges');
-
-  if (savedNodes.length === 0) {
+  if (saved.length === 0) {
     for (const s of SEEDS) {
-      const n = { ...s, clicks:0, visited:false, childrenGenerated:false, content:null };
-      nodes.push(n); await DB.put('nodes', n);
-    }
-    for (const s of SEEDS) {
-      if (s.parentId) {
-        const e = { id:`${s.parentId}→${s.id}`, source:s.parentId, target:s.id };
-        edges.push(e); await DB.put('edges', e);
-      }
+      const n = {...s, clicks:0, visited:false, childrenGenerated:false, content:null};
+      nodes.push(n);
+      await DB.put(n);
     }
   } else {
-    nodes = savedNodes;
-    edges = savedEdges;
+    nodes = saved;
   }
 
-  initSim();
-  render();
   initUI();
-
-  if (!S.key) setTimeout(()=>document.getElementById('settings-modal').classList.add('open'), 600);
+  renderBreadcrumb();
+  renderBubbles();
+  if (!S.key) setTimeout(() => document.getElementById('settings-modal').classList.add('open'), 600);
 }
 
 boot();
