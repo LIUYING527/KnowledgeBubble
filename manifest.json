@@ -1,0 +1,19 @@
+{
+  "name": "知识气泡",
+  "short_name": "知识气泡",
+  "description": "探索式学习，AI 生成知识气泡",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ede8ff",
+  "theme_color": "#7c3aed",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
