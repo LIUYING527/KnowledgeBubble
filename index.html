@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>知识气泡</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #050510;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #e2e8f0;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* ── Topbar ── */
+    #topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 54px;
+      background: rgba(5,5,20,0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 10px;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 17px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #38bdf8, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      white-space: nowrap;
+      letter-spacing: -0.3px;
+    }
+
+    #search-input {
+      flex: 1;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 22px;
+      padding: 8px 16px;
+      color: #e2e8f0;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+      min-width: 0;
+    }
+    #search-input:focus { border-color: rgba(168,85,247,0.5); }
+    #search-input::placeholder { color: rgba(255,255,255,0.25); }
+
+    #settings-btn {
+      width: 34px; height: 34px;
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.45);
+      font-size: 15px;
+      transition: all 0.2s;
+    }
+    #settings-btn:hover { color: white; border-color: rgba(255,255,255,0.25); }
+
+    /* ── Graph ── */
+    #graph {
+      position: fixed;
+      top: 54px; left: 0; right: 0; bottom: 0;
+    }
+    #graph svg { width: 100%; height: 100%; cursor: grab; }
+    #graph svg:active { cursor: grabbing; }
+
+    .link {
+      stroke: rgba(255,255,255,0.07);
+      stroke-width: 1.5;
+      fill: none;
+    }
+
+    .node { cursor: pointer; }
+
+    .node circle {
+      transition: filter 0.2s;
+      stroke-width: 1.5;
+    }
+    .node:hover circle { filter: brightness(1.25) drop-shadow(0 0 6px rgba(255,255,255,0.3)); }
+    .node.selected circle { filter: brightness(1.4) drop-shadow(0 0 10px rgba(168,85,247,0.8)); stroke: rgba(255,255,255,0.6) !important; stroke-width: 2.5 !important; }
+
+    .node text {
+      pointer-events: none;
+      font-size: 11px;
+      font-weight: 700;
+      fill: rgba(255,255,255,0.92);
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    /* ── Side Panel ── */
+    #panel {
+      position: fixed;
+      top: 54px; right: 0; bottom: 0;
+      width: 400px;
+      background: rgba(7,7,22,0.97);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid rgba(255,255,255,0.07);
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #panel.open { transform: translateX(0); }
+
+    #panel-header {
+      padding: 18px 18px 0;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    #panel-close {
+      position: absolute;
+      top: 14px; right: 14px;
+      width: 28px; height: 28px;
+      background: rgba(255,255,255,0.07);
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      color: rgba(255,255,255,0.4);
+      font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    #panel-close:hover { color: white; background: rgba(255,255,255,0.12); }
+
+    #panel-title {
+      font-size: 21px;
+      font-weight: 800;
+      margin-bottom: 5px;
+      padding-right: 36px;
+      line-height: 1.2;
+    }
+    #panel-intuition {
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 0 18px;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .tab {
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      color: rgba(255,255,255,0.35);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab:hover { color: rgba(255,255,255,0.65); }
+    .tab.active { color: white; border-bottom-color: #a855f7; }
+
+    #panel-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px;
+    }
+    #panel-content::-webkit-scrollbar { width: 3px; }
+    #panel-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* Markdown */
+    .md h1,.md h2,.md h3 { color: white; margin: 14px 0 6px; font-size: 14px; }
+    .md p { color: rgba(255,255,255,0.7); line-height: 1.7; margin-bottom: 10px; font-size: 13px; }
+    .md ul,.md ol { color: rgba(255,255,255,0.7); font-size: 13px; padding-left: 18px; margin-bottom: 10px; }
+    .md li { margin-bottom: 4px; line-height: 1.6; }
+    .md code { background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px; font-size: 12px; font-family: 'JetBrains Mono',monospace; color: #93c5fd; }
+    .md pre { background: #0d1117; border-radius: 8px; padding: 14px; overflow-x: auto; margin: 10px 0; border: 1px solid rgba(255,255,255,0.06); }
+    .md pre code { background: transparent; padding: 0; font-size: 12px; line-height: 1.65; color: inherit; }
+    .md blockquote { border-left: 3px solid #a855f7; padding-left: 12px; color: rgba(255,255,255,0.5); font-style: italic; margin: 10px 0; }
+    .md strong { color: white; }
+    .md a { color: #38bdf8; text-decoration: none; }
+    .md a:hover { text-decoration: underline; }
+
+    /* Loading */
+    .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; gap: 14px; }
+    .spinner { width: 36px; height: 36px; border: 3px solid rgba(168,85,247,0.15); border-top-color: #a855f7; border-radius: 50%; animation: spin 0.75s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { color: rgba(255,255,255,0.3); font-size: 13px; }
+
+    /* Papers */
+    .paper-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+    .paper-title { font-size: 13px; font-weight: 700; color: #c084fc; margin-bottom: 3px; }
+    .paper-meta { font-size: 12px; color: rgba(255,255,255,0.35); margin-bottom: 8px; }
+    .paper-link { font-size: 12px; color: #38bdf8; text-decoration: none; }
+    .paper-link:hover { text-decoration: underline; }
+
+    /* Subtopic chips */
+    .section-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.25); margin-bottom: 10px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .chip {
+      background: rgba(168,85,247,0.1);
+      border: 1px solid rgba(168,85,247,0.2);
+      color: #c084fc;
+      padding: 5px 11px;
+      border-radius: 18px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .chip:hover { background: rgba(168,85,247,0.22); border-color: rgba(168,85,247,0.45); color: white; }
+
+    /* Settings modal */
+    #settings-modal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    #settings-modal.open { display: flex; }
+    .modal-box { background: #0c0c24; border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; padding: 26px; width: 360px; max-width: calc(100vw - 32px); }
+    .modal-title { font-size: 17px; font-weight: 800; margin-bottom: 20px; }
+    .form-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4); margin-bottom: 6px; display: block; letter-spacing: 0.05em; }
+    .form-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 13px; color: white; font-size: 13px; outline: none; margin-bottom: 16px; font-family: monospace; transition: border-color 0.2s; }
+    .form-input:focus { border-color: rgba(168,85,247,0.5); }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+    .btn-primary { background: linear-gradient(135deg,#7c3aed,#a855f7); border: none; color: white; padding: 9px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 700; }
+    .btn-secondary { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); padding: 9px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+
+    /* Toast */
+    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: rgba(30,30,60,0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px 18px; font-size: 13px; color: rgba(255,255,255,0.8); z-index: 300; transition: transform 0.3s; pointer-events: none; white-space: nowrap; }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 600px) {
+      #panel { width: 100%; border-left: none; border-top: 1px solid rgba(255,255,255,0.07); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div id="topbar">
+  <div class="logo">知识气泡</div>
+  <input id="search-input" type="text" placeholder="输入概念，按 Enter 添加…">
+  <button id="settings-btn" title="设置">⚙</button>
+</div>
+
+<!-- Graph -->
+<div id="graph">
+  <svg>
+    <defs>
+      <radialGradient id="g-cv" cx="40%" cy="35%" r="70%">
+        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.95"/>
+        <stop offset="100%" stop-color="#0369a1" stop-opacity="0.75"/>
+      </radialGradient>
+      <radialGradient id="g-llm" cx="40%" cy="35%" r="70%">
+        <stop offset="0%" stop-color="#c084fc" stop-opacity="0.95"/>
+        <stop offset="100%" stop-color="#6d28d9" stop-opacity="0.75"/>
+      </radialGradient>
+      <radialGradient id="g-gen" cx="40%" cy="35%" r="70%">
+        <stop offset="0%" stop-color="#fb923c" stop-opacity="0.95"/>
+        <stop offset="100%" stop-color="#b45309" stop-opacity="0.75"/>
+      </radialGradient>
+    </defs>
+  </svg>
+</div>
+
+<!-- Side Panel -->
+<div id="panel">
+  <div id="panel-header">
+    <button id="panel-close">✕</button>
+    <div id="panel-title"></div>
+    <div id="panel-intuition"></div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" data-tab="concept">💡 概念</div>
+    <div class="tab" data-tab="mechanism">⚙️ 原理</div>
+    <div class="tab" data-tab="code">💻 代码</div>
+    <div class="tab" data-tab="papers">📄 论文</div>
+  </div>
+  <div id="panel-content">
+    <div class="tab-pane active" id="tab-concept"></div>
+    <div class="tab-pane" id="tab-mechanism"></div>
+    <div class="tab-pane" id="tab-code"></div>
+    <div class="tab-pane" id="tab-papers"></div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settings-modal">
+  <div class="modal-box">
+    <div class="modal-title">⚙️ 设置</div>
+    <label class="form-label">DEEPSEEK API KEY</label>
+    <input class="form-input" id="api-key-input" type="password" placeholder="sk-…">
+    <label class="form-label">每个气泡生成子话题数量</label>
+    <input class="form-input" id="subtopic-count" type="number" value="5" min="3" max="8">
+    <div class="modal-actions">
+      <button class="btn-secondary" id="modal-cancel">取消</button>
+      <button class="btn-primary" id="modal-save">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+'use strict';
+
+// ── Seeds ────────────────────────────────────────────────────────────
+const SEEDS = [
+  { id:'cv',            label:'计算机视觉',  domain:'cv',  level:0, parentId:null },
+  { id:'llm',           label:'大语言模型',  domain:'llm', level:0, parentId:null },
+  { id:'detection',     label:'目标检测',    domain:'cv',  level:1, parentId:'cv'  },
+  { id:'segmentation',  label:'图像分割',    domain:'cv',  level:1, parentId:'cv'  },
+  { id:'vit',           label:'ViT',         domain:'cv',  level:1, parentId:'cv'  },
+  { id:'multimodal',    label:'多模态',      domain:'cv',  level:1, parentId:'cv'  },
+  { id:'imggen',        label:'图像生成',    domain:'cv',  level:1, parentId:'cv'  },
+  { id:'transformer',   label:'Transformer', domain:'llm', level:1, parentId:'llm' },
+  { id:'pretraining',   label:'预训练',      domain:'llm', level:1, parentId:'llm' },
+  { id:'rlhf',          label:'RLHF',        domain:'llm', level:1, parentId:'llm' },
+  { id:'agent',         label:'Agent',       domain:'llm', level:1, parentId:'llm' },
+  { id:'rag',           label:'RAG',         domain:'llm', level:1, parentId:'llm' },
+];
+
+// ── Settings ─────────────────────────────────────────────────────────
+const S = {
+  get key()   { return localStorage.getItem('ds_key') || ''; },
+  set key(v)  { localStorage.setItem('ds_key', v); },
+  get count() { return +(localStorage.getItem('sub_count') || 5); },
+  set count(v){ localStorage.setItem('sub_count', v); },
+};
+
+// ── IndexedDB ────────────────────────────────────────────────────────
+const DB = (() => {
+  let _db;
+  const open = () => new Promise((ok, fail) => {
+    const r = indexedDB.open('KBubbles', 1);
+    r.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('nodes')) d.createObjectStore('nodes', { keyPath:'id' });
+      if (!d.objectStoreNames.contains('edges')) d.createObjectStore('edges', { keyPath:'id' });
+    };
+    r.onsuccess = e => { _db = e.target.result; ok(); };
+    r.onerror = fail;
+  });
+  const store = (name, mode) => _db.transaction(name, mode).objectStore(name);
+  const all  = name => new Promise((ok,fail) => { const r = store(name,'readonly').getAll(); r.onsuccess=()=>ok(r.result); r.onerror=fail; });
+  const put  = (name, item) => new Promise((ok,fail) => { const r = store(name,'readwrite').put(item); r.onsuccess=ok; r.onerror=fail; });
+  return { open, all, put };
+})();
+
+// ── DeepSeek API ─────────────────────────────────────────────────────
+async function fetchContent(label, domain) {
+  const ctx = domain==='cv' ? '计算机视觉' : domain==='llm' ? '大语言模型' : '人工智能';
+  const prompt = `你是一个专注于${ctx}的技术知识助手。为概念"${label}"生成结构化学习卡片。
+
+返回严格 JSON（无 markdown 包裹），字段：
+{
+  "intuition": "一句话直觉（≤20字，说清楚它是什么）",
+  "problem": "它解决了什么问题（Markdown，约100字）",
+  "mechanism": "工作原理（Markdown，含关键公式用代码块，约250字）",
+  "code": "最小可运行 Python/PyTorch 示例（≤20行，有注释，用 \`\`\`python 代码块）",
+  "papers": [{"title":"论文全名","authors":"第一作者 et al.","year":2017,"url":"https://arxiv.org/abs/..."}],
+  "subtopics": ["具体子概念1","具体子概念2","具体子概念3","具体子概念4","具体子概念5"]
+}
+
+subtopics 要具体（如"Scaled Dot-Product Attention"而非"注意力"）。只返回 JSON。`;
+
+  const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${S.key}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model:'deepseek-chat', messages:[{role:'user',content:prompt}], temperature:0.7, max_tokens:2000 }),
+  });
+  if (!resp.ok) throw new Error(`API ${resp.status}`);
+  let raw = (await resp.json()).choices[0].message.content.trim();
+  if (raw.startsWith('```')) { raw = raw.split('```')[1]; if (raw.startsWith('json')) raw = raw.slice(4); }
+  return JSON.parse(raw.trim());
+}
+
+// ── Graph state ──────────────────────────────────────────────────────
+let nodes = [], edges = [], sim, svgG, linkSel, nodeSel;
+
+const radius = d => {
+  const base = d.level===0 ? 44 : d.level===1 ? 33 : 24;
+  return base + Math.min((d.clicks||0)*1.5, 10);
+};
+
+const gradId = d => d.domain==='cv' ? 'url(#g-cv)' : d.domain==='llm' ? 'url(#g-llm)' : 'url(#g-gen)';
+
+function initSim() {
+  const el = document.getElementById('graph');
+  const W = el.clientWidth, H = el.clientHeight;
+
+  const svg = d3.select('#graph svg');
+  svgG = svg.append('g');
+
+  svg.call(d3.zoom().scaleExtent([0.25,3.5]).on('zoom', e => svgG.attr('transform', e.transform)));
+
+  linkSel = svgG.append('g');
+  nodeSel = svgG.append('g');
+
+  sim = d3.forceSimulation()
+    .force('link', d3.forceLink().id(d=>d.id).distance(d => {
+      const lv = Math.max(
+        nodes.find(n=>n.id===(d.source.id||d.source))?.level||0,
+        nodes.find(n=>n.id===(d.target.id||d.target))?.level||0
+      );
+      return lv===0 ? 200 : lv===1 ? 140 : 105;
+    }))
+    .force('charge', d3.forceManyBody().strength(-520))
+    .force('center', d3.forceCenter(W/2, H/2))
+    .force('collide', d3.forceCollide().radius(d=>radius(d)+14))
+    .on('tick', () => {
+      linkSel.selectAll('line')
+        .attr('x1',d=>d.source.x).attr('y1',d=>d.source.y)
+        .attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+      nodeSel.selectAll('.node').attr('transform',d=>`translate(${d.x},${d.y})`);
+    });
+}
+
+function render() {
+  // Links
+  const lnk = linkSel.selectAll('line').data(edges, d=>d.id);
+  lnk.enter().append('line').attr('class','link');
+  lnk.exit().remove();
+
+  // Nodes
+  const nd = nodeSel.selectAll('.node').data(nodes, d=>d.id);
+
+  const enter = nd.enter().append('g').attr('class','node')
+    .call(d3.drag()
+      .on('start',(e,d)=>{ if(!e.active) sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+      .on('drag', (e,d)=>{ d.fx=e.x; d.fy=e.y; })
+      .on('end', (e,d)=>{ if(!e.active) sim.alphaTarget(0); d.fx=null; d.fy=null; })
+    )
+    .on('click',(e,d)=>{ e.stopPropagation(); onNodeClick(d); });
+
+  enter.append('circle');
+  enter.append('text');
+
+  // Update all
+  const all = nodeSel.selectAll('.node');
+  all.select('circle')
+    .attr('r', d=>radius(d))
+    .attr('fill', d=>gradId(d))
+    .attr('stroke', d=>d.visited?'rgba(255,255,255,0.55)':'rgba(255,255,255,0.12)');
+
+  all.select('text').each(function(d) {
+    const el = d3.select(this);
+    el.selectAll('*').remove();
+    const label = d.label;
+    const maxLen = d.level===0 ? 5 : 4;
+    if (label.length <= maxLen) {
+      el.append('tspan').attr('x',0).attr('dy',0).text(label);
+    } else {
+      const mid = Math.ceil(label.length/2);
+      el.append('tspan').attr('x',0).attr('dy','-0.55em').text(label.slice(0,mid));
+      el.append('tspan').attr('x',0).attr('dy','1.1em').text(label.slice(mid));
+    }
+  });
+
+  nd.exit().remove();
+
+  sim.nodes(nodes);
+  sim.force('link').links(edges);
+  sim.alpha(0.5).restart();
+}
+
+// ── Node click ───────────────────────────────────────────────────────
+async function onNodeClick(d) {
+  nodeSel.selectAll('.node').classed('selected', n=>n.id===d.id);
+  d.clicks = (d.clicks||0)+1;
+  d.lastClicked = Date.now();
+  d.visited = true;
+  await DB.put('nodes', d);
+  render();
+  openPanel(d);
+}
+
+// ── Panel ────────────────────────────────────────────────────────────
+function openPanel(d) {
+  document.getElementById('panel').classList.add('open');
+  document.getElementById('panel-title').textContent = d.label;
+  document.getElementById('panel-intuition').textContent = d.content?.intuition || '正在思考…';
+  // Reset to first tab
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab==='concept'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.toggle('active',p.id==='tab-concept'));
+
+  if (d.content) {
+    renderPanel(d.content, d);
+  } else {
+    setLoading();
+    loadContent(d);
+  }
+}
+
+function setLoading() {
+  const html = `<div class="loading"><div class="spinner"></div><div class="loading-text">AI 生成中…</div></div>`;
+  ['concept','mechanism','code','papers'].forEach(t => { document.getElementById('tab-'+t).innerHTML = html; });
+}
+
+async function loadContent(d) {
+  if (!S.key) {
+    document.getElementById('tab-concept').innerHTML =
+      `<div style="padding:16px;color:rgba(255,255,255,0.4);font-size:13px;line-height:1.7">请先点击右上角 ⚙ 填写 DeepSeek API Key</div>`;
+    document.getElementById('settings-modal').classList.add('open');
+    return;
+  }
+  try {
+    const content = await fetchContent(d.label, d.domain);
+    d.content = content;
+    await DB.put('nodes', d);
+    document.getElementById('panel-intuition').textContent = content.intuition;
+    renderPanel(content, d);
+    if (!d.childrenGenerated) spawnChildren(d, content.subtopics);
+  } catch(err) {
+    document.getElementById('tab-concept').innerHTML =
+      `<div style="padding:16px;color:#f87171;font-size:13px">生成失败：${err.message}</div>`;
+  }
+}
+
+function renderPanel(c, d) {
+  const md = str => `<div class="md">${marked.parse(str||'')}</div>`;
+
+  // Concept tab: problem + subtopic chips
+  document.getElementById('tab-concept').innerHTML =
+    md(c.problem) +
+    `<div style="margin-top:18px">
+       <div class="section-label">延伸话题</div>
+       <div class="chips">${(c.subtopics||[]).map(s=>
+         `<div class="chip" data-label="${s}" data-parent="${d.id}" data-domain="${d.domain}">${s}</div>`
+       ).join('')}</div>
+     </div>`;
+
+  document.getElementById('tab-mechanism').innerHTML = md(c.mechanism);
+  document.getElementById('tab-code').innerHTML = md(c.code);
+  document.getElementById('tab-papers').innerHTML = (c.papers||[]).length
+    ? (c.papers||[]).map(p=>`
+        <div class="paper-card">
+          <div class="paper-title">${p.title||''}</div>
+          <div class="paper-meta">${p.authors||''} · ${p.year||''}</div>
+          ${p.url?`<a class="paper-link" href="${p.url}" target="_blank" rel="noopener">→ 查看原文</a>`:''}
+        </div>`).join('')
+    : `<div style="color:rgba(255,255,255,0.25);font-size:13px;padding:8px 0">暂无论文信息</div>`;
+
+  document.querySelectorAll('#panel-content pre code').forEach(el=>hljs.highlightElement(el));
+
+  document.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      addNode(chip.dataset.label, chip.dataset.parent, chip.dataset.domain, true);
+    });
+  });
+}
+
+// ── Children ─────────────────────────────────────────────────────────
+async function spawnChildren(parent, subtopics) {
+  parent.childrenGenerated = true;
+  await DB.put('nodes', parent);
+  const count = Math.min((subtopics||[]).length, S.count);
+  for (let i=0; i<count; i++) {
+    const label = subtopics[i];
+    if (nodes.find(n=>n.label===label)) continue;
+    await addNode(label, parent.id, parent.domain, false);
+  }
+}
+
+// ── Add node ─────────────────────────────────────────────────────────
+async function addNode(label, parentId=null, domain='gen', andOpen=false) {
+  const existing = nodes.find(n=>n.label===label);
+  if (existing) { if(andOpen) onNodeClick(existing); return; }
+
+  const parent = nodes.find(n=>n.id===parentId);
+  const id = 'n' + Date.now() + Math.random().toString(36).slice(2,6);
+  const node = {
+    id, label,
+    domain: domain || parent?.domain || 'gen',
+    level: parent ? parent.level+1 : 1,
+    parentId,
+    clicks: 0, visited: false, childrenGenerated: false, content: null,
+    x: parent ? parent.x+(Math.random()-.5)*80 : undefined,
+    y: parent ? parent.y+(Math.random()-.5)*80 : undefined,
+  };
+  nodes.push(node);
+  await DB.put('nodes', node);
+
+  if (parentId) {
+    const edge = { id:`${parentId}→${id}`, source:parentId, target:id };
+    edges.push(edge);
+    await DB.put('edges', edge);
+  }
+
+  render();
+  if (andOpen) onNodeClick(node);
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2200);
+}
+
+// ── UI wiring ─────────────────────────────────────────────────────────
+function initUI() {
+  document.getElementById('panel-close').addEventListener('click', ()=>{
+    document.getElementById('panel').classList.remove('open');
+    nodeSel.selectAll('.node').classed('selected',false);
+  });
+  document.getElementById('graph').addEventListener('click', ()=>{
+    document.getElementById('panel').classList.remove('open');
+    nodeSel?.selectAll('.node').classed('selected',false);
+  });
+
+  document.querySelectorAll('.tab').forEach(tab=>{
+    tab.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  document.getElementById('search-input').addEventListener('keydown', async e=>{
+    if (e.key==='Enter') {
+      const v = e.target.value.trim();
+      if (v) { await addNode(v, null, 'gen', true); e.target.value=''; toast(`已添加「${v}」`); }
+    }
+  });
+
+  document.getElementById('settings-btn').addEventListener('click', ()=>{
+    document.getElementById('api-key-input').value = S.key;
+    document.getElementById('subtopic-count').value = S.count;
+    document.getElementById('settings-modal').classList.add('open');
+  });
+  document.getElementById('modal-cancel').addEventListener('click',()=>
+    document.getElementById('settings-modal').classList.remove('open'));
+  document.getElementById('modal-save').addEventListener('click',()=>{
+    S.key = document.getElementById('api-key-input').value.trim();
+    S.count = +document.getElementById('subtopic-count').value;
+    document.getElementById('settings-modal').classList.remove('open');
+    toast('设置已保存');
+  });
+  document.getElementById('settings-modal').addEventListener('click', e=>{
+    if(e.target===document.getElementById('settings-modal'))
+      document.getElementById('settings-modal').classList.remove('open');
+  });
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────
+async function boot() {
+  await DB.open();
+
+  const savedNodes = await DB.all('nodes');
+  const savedEdges = await DB.all('edges');
+
+  if (savedNodes.length === 0) {
+    for (const s of SEEDS) {
+      const n = { ...s, clicks:0, visited:false, childrenGenerated:false, content:null };
+      nodes.push(n); await DB.put('nodes', n);
+    }
+    for (const s of SEEDS) {
+      if (s.parentId) {
+        const e = { id:`${s.parentId}→${s.id}`, source:s.parentId, target:s.id };
+        edges.push(e); await DB.put('edges', e);
+      }
+    }
+  } else {
+    nodes = savedNodes;
+    edges = savedEdges;
+  }
+
+  initSim();
+  render();
+  initUI();
+
+  if (!S.key) setTimeout(()=>document.getElementById('settings-modal').classList.add('open'), 600);
+}
+
+boot();
+</script>
+</body>
+</html>
