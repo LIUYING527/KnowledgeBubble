@@ -461,25 +461,6 @@ function scheduleSave() {
   clearTimeout(syncTimer); syncTimer = setTimeout(saveCloudData, 3000);
 }
 
-const SEEDS = [
-  {id:'cv',           label:'计算机视觉',  domain:'cv',  level:0, parentId:null},
-  {id:'llm',          label:'大语言模型',  domain:'llm', level:0, parentId:null},
-  {id:'detection',    label:'目标检测',    domain:'cv',  level:1, parentId:'cv'},
-  {id:'segmentation', label:'图像分割',    domain:'cv',  level:1, parentId:'cv'},
-  {id:'vit',          label:'ViT',         domain:'cv',  level:1, parentId:'cv'},
-  {id:'multimodal',   label:'多模态',      domain:'cv',  level:1, parentId:'cv'},
-  {id:'imggen',       label:'图像生成',    domain:'cv',  level:1, parentId:'cv'},
-  {id:'transformer',  label:'Transformer', domain:'llm', level:1, parentId:'llm'},
-  {id:'pretraining',  label:'预训练',      domain:'llm', level:1, parentId:'llm'},
-  {id:'rlhf',         label:'RLHF',        domain:'llm', level:1, parentId:'llm'},
-  {id:'agent',        label:'Agent',       domain:'llm', level:1, parentId:'llm'},
-  {id:'rag',          label:'RAG',         domain:'llm', level:1, parentId:'llm'},
-];
-
-// 包装 DB.put，每次写入后触发云同步
-const _dbPut = DB.put.bind(DB);
-DB.put = async (item) => { const r = await _dbPut(item); scheduleSave(); return r; };
-
 const DCOL = {cv:'#0ea5e9', llm:'#8b5cf6', gen:'#f97316'};
 const DNAME = {cv:'计算机视觉', llm:'大语言模型', gen:'其他'};
 const STALE_MS = 7 * 86400000;
@@ -510,6 +491,25 @@ const DB = (() => {
   const put = item => new Promise((ok,fail) => { const r=st('readwrite').put(item); r.onsuccess=ok; r.onerror=fail; });
   return {open,all,put};
 })();
+
+const SEEDS = [
+  {id:'cv',           label:'计算机视觉',  domain:'cv',  level:0, parentId:null},
+  {id:'llm',          label:'大语言模型',  domain:'llm', level:0, parentId:null},
+  {id:'detection',    label:'目标检测',    domain:'cv',  level:1, parentId:'cv'},
+  {id:'segmentation', label:'图像分割',    domain:'cv',  level:1, parentId:'cv'},
+  {id:'vit',          label:'ViT',         domain:'cv',  level:1, parentId:'cv'},
+  {id:'multimodal',   label:'多模态',      domain:'cv',  level:1, parentId:'cv'},
+  {id:'imggen',       label:'图像生成',    domain:'cv',  level:1, parentId:'cv'},
+  {id:'transformer',  label:'Transformer', domain:'llm', level:1, parentId:'llm'},
+  {id:'pretraining',  label:'预训练',      domain:'llm', level:1, parentId:'llm'},
+  {id:'rlhf',         label:'RLHF',        domain:'llm', level:1, parentId:'llm'},
+  {id:'agent',        label:'Agent',       domain:'llm', level:1, parentId:'llm'},
+  {id:'rag',          label:'RAG',         domain:'llm', level:1, parentId:'llm'},
+];
+
+// 包装 DB.put，每次写入后触发云同步
+const _dbPut = DB.put.bind(DB);
+DB.put = async (item) => { const r = await _dbPut(item); scheduleSave(); return r; };
 
 // ─── Migrate from old DB names ────────────────────────────────────────────────
 async function migrateFromOldDB() {
