@@ -278,6 +278,28 @@
     .auth-tabs{display:flex;border:1px solid rgba(139,92,246,.14);border-radius:8px;overflow:hidden;margin-bottom:14px}
     .auth-tabs button{flex:1;border:none;padding:8px;font-size:13px;cursor:pointer;background:rgba(139,92,246,.04);color:rgba(30,27,75,.45)}
     .auth-tabs button.active{background:linear-gradient(135deg,#7c3aed,#a855f7);color:white}
+
+    /* ── Long-press feedback ── */
+    .bubble.long-pressing .bubble-body{
+      animation:none!important;
+      box-shadow:0 0 0 3px rgba(220,38,38,.55),0 4px 22px rgba(220,38,38,.28)!important;
+      transform:scale(0.91)!important;
+      transition:transform .12s,box-shadow .12s!important;
+    }
+
+    /* ── Delete confirm ── */
+    #delete-confirm{position:fixed;inset:0;background:rgba(91,33,182,.18);backdrop-filter:blur(4px);z-index:210;display:none;align-items:center;justify-content:center}
+    #delete-confirm.open{display:flex}
+    .del-box{background:#fff;border:1px solid rgba(220,38,38,.2);border-radius:16px;padding:24px;width:300px;max-width:calc(100vw - 32px);box-shadow:0 16px 48px rgba(220,38,38,.12)}
+    .del-title{font-size:16px;font-weight:800;margin-bottom:6px;color:#dc2626}
+    .del-warn{font-size:12px;color:rgba(30,27,75,.42);margin-bottom:18px;line-height:1.6}
+    .btn-danger{background:#dc2626;border:none;color:white;padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;box-shadow:0 2px 10px rgba(220,38,38,.3)}
+
+    /* ── Organize loading overlay ── */
+    #organize-overlay{position:fixed;inset:0;background:rgba(248,245,255,.82);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+    #organize-overlay.open{display:flex}
+    .org-spinner{width:40px;height:40px;border:3px solid rgba(139,92,246,.14);border-top-color:#a855f7;border-radius:50%;animation:spin .75s linear infinite}
+    .org-msg{font-size:14px;color:#5b21b6;font-weight:600}
   </style>
 </head>
 <body>
@@ -292,6 +314,7 @@
   <button id="auth-btn" onclick="openAuthModal()" title="账号同步">
     <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" fill="none" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
   </button>
+  <button class="icon-btn" id="organize-btn" title="自动整理分组">✨</button>
   <button class="icon-btn" id="bookmark-btn" title="收藏">⭐</button>
   <button class="icon-btn" id="settings-btn" title="设置">⚙</button>
 </div>
@@ -364,6 +387,22 @@
       </div>
     </div>
   </div>
+</div>
+
+<div id="delete-confirm">
+  <div class="del-box">
+    <div id="del-title" class="del-title">删除气泡?</div>
+    <div id="del-warn" class="del-warn"></div>
+    <div class="modal-actions">
+      <button class="btn-s" id="del-cancel-btn">取消</button>
+      <button class="btn-danger" id="del-ok-btn">删除</button>
+    </div>
+  </div>
+</div>
+
+<div id="organize-overlay">
+  <div class="org-spinner"></div>
+  <div class="org-msg">AI 正在分析整理…</div>
 </div>
 
 <div id="toast"></div>
@@ -489,7 +528,8 @@ const DB = (() => {
   const st = m => _db.transaction('nodes',m).objectStore('nodes');
   const all = () => new Promise((ok,fail) => { const r=st('readonly').getAll(); r.onsuccess=()=>ok(r.result); r.onerror=fail; });
   const put = item => new Promise((ok,fail) => { const r=st('readwrite').put(item); r.onsuccess=ok; r.onerror=fail; });
-  return {open,all,put};
+  const del = id => new Promise((ok,fail) => { const r=st('readwrite').delete(id); r.onsuccess=ok; r.onerror=fail; });
+  return {open,all,put,del};
 })();
 
 const SEEDS = [
@@ -507,9 +547,11 @@ const SEEDS = [
   {id:'rag',          label:'RAG',         domain:'llm', level:1, parentId:'llm'},
 ];
 
-// 包装 DB.put，每次写入后触发云同步
+// 包装 DB.put / DB.del，每次变更后触发云同步
 const _dbPut = DB.put.bind(DB);
 DB.put = async (item) => { const r = await _dbPut(item); scheduleSave(); return r; };
+const _dbDel = DB.del.bind(DB);
+DB.del = async (id) => { const r = await _dbDel(id); scheduleSave(); return r; };
 
 // ─── Migrate from old DB names ────────────────────────────────────────────────
 async function migrateFromOldDB() {
@@ -568,10 +610,120 @@ let currentNodeId = null;
 let breadcrumb = [];
 let activeBubbleId = null;
 let viewMode = 'normal';
+let _lpActive = false;
+let _lpTimer = null;
+let _pendingDeleteId = null;
 
 const getNode = id => nodes.find(n => n.id === id);
 const getChildren = pid => nodes.filter(n => n.parentId === pid);
 const isStale = n => n.visited && n.lastClicked && (Date.now()-n.lastClicked) > STALE_MS;
+
+// ─── Delete helpers ───────────────────────────────────────────────────────────
+function getAllDescendantIds(id) {
+  const ids = [];
+  const queue = [id];
+  while (queue.length) {
+    const nid = queue.shift();
+    nodes.filter(n => n.parentId === nid).forEach(n => { ids.push(n.id); queue.push(n.id); });
+  }
+  return ids;
+}
+
+async function deleteNodeAndDescendants(id) {
+  const toDelete = [id, ...getAllDescendantIds(id)];
+  for (const nid of toDelete) {
+    nodes = nodes.filter(n => n.id !== nid);
+    await DB.del(nid);
+  }
+}
+
+function showDeleteConfirm(nodeId) {
+  const node = getNode(nodeId);
+  if (!node) return;
+  _pendingDeleteId = nodeId;
+  const descCount = getAllDescendantIds(nodeId).length;
+  document.getElementById('del-title').textContent = `删除「${node.label}」?`;
+  document.getElementById('del-warn').textContent = descCount
+    ? `将同时删除其下 ${descCount} 个子气泡，此操作不可撤销。`
+    : '此操作不可撤销。';
+  document.getElementById('delete-confirm').classList.add('open');
+}
+
+// ─── Auto-organize ────────────────────────────────────────────────────────────
+async function autoOrganize() {
+  const children = getChildren(currentNodeId);
+  if (children.length < 3) { toast('至少需要 3 个气泡才能自动整理'); return; }
+  if (!S.key) { document.getElementById('settings-modal').classList.add('open'); return; }
+
+  const overlay = document.getElementById('organize-overlay');
+  const btn = document.getElementById('organize-btn');
+  overlay.classList.add('open');
+  btn.style.pointerEvents = 'none';
+
+  const labels = children.map(n => n.label);
+  const prompt =
+`你是知识图谱整理助手。以下是同一层级的概念列表：${labels.join('、')}
+请将它们合理归类为 2~4 个有意义的主题组。
+规则：
+- 每组至少 2 个概念
+- 不适合归组的概念放在 "ungrouped" 数组里
+- 返回合法 JSON，不输出其他内容：
+{"groups":[{"name":"组名","items":["概念1","概念2"]}],"ungrouped":["概念A"]}`;
+
+  try {
+    const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {'Authorization': `Bearer ${S.key}`, 'Content-Type': 'application/json'},
+      body: JSON.stringify({model:'deepseek-chat', messages:[{role:'user',content:prompt}], temperature:0.3, max_tokens:600})
+    });
+    if (!resp.ok) throw new Error(`API ${resp.status}`);
+    let raw = (await resp.json()).choices[0].message.content.trim();
+    if (raw.startsWith('```')) raw = raw.replace(/^```(?:json)?\n?/,'').replace(/\n?```$/,'');
+    const s = raw.indexOf('{'), e = raw.lastIndexOf('}');
+    if (s >= 0 && e > s) raw = raw.slice(s, e+1);
+    const result = JSON.parse(raw);
+
+    let groupsCreated = 0;
+    for (const grp of (result.groups || [])) {
+      if (!grp.name || !grp.items?.length) continue;
+      const itemNodes = grp.items.map(lb => children.find(n => n.label === lb)).filter(Boolean);
+      if (itemNodes.length < 2) continue;
+
+      // Determine dominant domain
+      const domainCounts = {};
+      itemNodes.forEach(n => { domainCounts[n.domain] = (domainCounts[n.domain]||0) + 1; });
+      const domain = Object.entries(domainCounts).sort((a,b) => b[1]-a[1])[0][0];
+
+      // Create group node at the same level as current children
+      const groupId = 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+      const groupNode = {
+        id: groupId, label: grp.name, domain,
+        level: itemNodes[0].level,
+        parentId: currentNodeId,
+        clicks: 0, visited: false, childrenGenerated: true,
+        content: null, starred: false
+      };
+      nodes.push(groupNode);
+      await DB.put(groupNode);
+
+      // Re-parent items under the group
+      for (const nd of itemNodes) {
+        nd.parentId = groupId;
+        nd.level = groupNode.level + 1;
+        await DB.put(nd);
+      }
+      groupsCreated++;
+    }
+
+    renderBubbles();
+    toast(groupsCreated ? `✨ 已整理为 ${groupsCreated} 个分组` : '没有找到可合并的分组');
+  } catch(err) {
+    toast('整理失败：' + err.message);
+  }
+
+  overlay.classList.remove('open');
+  btn.style.pointerEvents = '';
+}
 
 // ─── Layouts ─────────────────────────────────────────────────────────────────
 const LAYOUTS = [
@@ -678,7 +830,24 @@ function renderBubbles() {
       ${node.starred?'<div class="bubble-star">⭐</div>':''}
     </div>`;
 
-    div.addEventListener('click', ()=>onBubbleClick(node));
+    // Long-press to delete
+    div.addEventListener('pointerdown', () => {
+      _lpActive = false;
+      clearTimeout(_lpTimer);
+      _lpTimer = setTimeout(() => {
+        _lpActive = true;
+        div.classList.add('long-pressing');
+        navigator.vibrate?.([40]);
+        showDeleteConfirm(node.id);
+      }, 650);
+    });
+    ['pointerup','pointercancel','pointerleave'].forEach(ev => {
+      div.addEventListener(ev, () => { clearTimeout(_lpTimer); div.classList.remove('long-pressing'); }, {passive:true});
+    });
+    div.addEventListener('click', () => {
+      if (_lpActive) { _lpActive = false; return; }
+      onBubbleClick(node);
+    });
     arena.appendChild(div);
   });
 }
@@ -903,6 +1072,27 @@ function toast(msg){
 
 // ─── UI wiring ────────────────────────────────────────────────────────────────
 function initUI(){
+  // Delete confirm buttons
+  document.getElementById('del-ok-btn').addEventListener('click', async () => {
+    if (!_pendingDeleteId) return;
+    document.getElementById('delete-confirm').classList.remove('open');
+    if (activeBubbleId === _pendingDeleteId) closePanel();
+    await deleteNodeAndDescendants(_pendingDeleteId);
+    _pendingDeleteId = null;
+    renderBubbles();
+    toast('已删除');
+  });
+  document.getElementById('del-cancel-btn').addEventListener('click', () => {
+    document.getElementById('delete-confirm').classList.remove('open');
+    _pendingDeleteId = null;
+  });
+  document.getElementById('delete-confirm').addEventListener('click', function(e) {
+    if (e.target === this) { this.classList.remove('open'); _pendingDeleteId = null; }
+  });
+
+  // Auto-organize button
+  document.getElementById('organize-btn').addEventListener('click', autoOrganize);
+
   document.getElementById('panel-close').addEventListener('click',closePanel);
   document.getElementById('panel-star').addEventListener('click',()=>{if(activeBubbleId)toggleStar(activeBubbleId);});
   document.getElementById('arena').addEventListener('click',e=>{if(e.target===document.getElementById('arena'))closePanel();});
